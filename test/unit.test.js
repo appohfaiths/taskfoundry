@@ -54,7 +54,7 @@ describe('Configuration Tests', () => {
   });
 
   test('should handle project config file', () => {
-    const configFile = TestHelper.createTempFile('.create-task.json', JSON.stringify({
+    const configFile = TestHelper.createTempFile('.taskfoundry.json', JSON.stringify({
       engine: 'local',
       temperature: 0.5
     }));
@@ -168,7 +168,7 @@ describe('Error Handling Tests', () => {
   });
 
   test('should handle malformed config files', () => {
-    TestHelper.createTempFile('.create-task.json', '{ invalid json }');
+    TestHelper.createTempFile('.taskfoundry.json', '{ invalid json }');
     
     // Should not throw, but should warn
     const config = loadConfig();

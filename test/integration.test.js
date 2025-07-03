@@ -69,10 +69,10 @@ describe('CLI Integration Tests', () => {
 
     child.on('close', (code) => {
       assert.strictEqual(code, 0);
-      assert(output.includes('Created .create-task.json'));
-      assert(existsSync('.create-task.json'));
+      assert(output.includes('Created .taskfoundry.json'));
+      assert(existsSync('.taskfoundry.json'));
       
-      const config = JSON.parse(readFileSync('.create-task.json', 'utf-8'));
+      const config = JSON.parse(readFileSync('.taskfoundry.json', 'utf-8'));
       assert.strictEqual(config.engine, 'openai');
       assert.strictEqual(config.output, 'markdown');
       
@@ -225,7 +225,7 @@ describe('Configuration Integration Tests', () => {
   });
 
   test('should use project config file', (t, done) => {
-    const configFile = TestHelper.createTempFile('.create-task.json', JSON.stringify({
+    const configFile = TestHelper.createTempFile('.taskfoundry.json', JSON.stringify({
       engine: 'local',
       output: 'json',
       temperature: 0.5
@@ -249,7 +249,7 @@ describe('Configuration Integration Tests', () => {
   });
 
   test('should override config with CLI arguments', (t, done) => {
-    const configFile = TestHelper.createTempFile('.create-task.json', JSON.stringify({
+    const configFile = TestHelper.createTempFile('.taskfoundry.json', JSON.stringify({
       engine: 'local',
       output: 'json'
     }));
@@ -297,7 +297,7 @@ describe('Error Handling Integration Tests', () => {
   });
 
   test('should handle invalid config file gracefully', (t, done) => {
-    TestHelper.createTempFile('.create-task.json', '{ invalid json }');
+    TestHelper.createTempFile('.taskfoundry.json', '{ invalid json }');
     
     const child = spawn('node', ['bin/index.js', 'config'], {
       stdio: 'pipe'
