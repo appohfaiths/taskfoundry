@@ -8,7 +8,7 @@
     "ct": "./bin/create-task.js",
     "cm": "./bin/create-commit.js"
   },
-  "description": "",
+  "description": "Generate task content and commit messages from your Git diffs — in Markdown or JSON — powered by Groq, OpenAI, or your own local model.",
   "main": "src/createTask.js",
   "scripts": {
     "start": "node bin/create-task.js",
@@ -61,8 +61,7 @@
     "commander": "^14.0.0",
     "dotenv": "^17.0.1",
     "node-fetch": "^3.3.2",
-    "openai": "^5.8.2",
-    "taskfoundry": "link:"
+    "openai": "^5.8.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
