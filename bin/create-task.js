@@ -56,8 +56,9 @@ program
     }
   });
 
-program
-  .addHelpText('after', `
+program.addHelpText(
+  "after",
+  `
 Examples:
   $ create-task                           # Generate from last commit
   $ create-task --staged                  # Generate from staged changes
@@ -78,7 +79,8 @@ Environment Variables:
   GROQ_API_KEY                            # Groq API key
   OPENAI_API_KEY                         # OpenAI API key
   LOCAL_MODEL_ENDPOINT                   # Local model endpoint
-  `);
+  `,
+);
 
 program
   .command("config")

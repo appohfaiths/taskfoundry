@@ -19,36 +19,40 @@ program
   .name("create-commit")
   .description("Generate conventional commit message from staged changes")
   .version(packageJson.version)
-  .option('--type <type>', 'Commit type: feat, fix, docs, style, refactor, perf, test, chore, ci, build')
-  .option('--scope <scope>', 'Commit scope (optional)')
-  .option('--breaking', 'Mark as breaking change')
-  .option('--engine <engine>', 'Engine to use: openai, groq, or local')
-  .option('--model <model>', 'AI model to use')
-  .option('--temperature <temp>', 'AI temperature (0-2)', parseFloat)
-  .option('--file <path>', 'Save commit message to file instead of stdout')
-  .option('--copy', 'Copy commit message to clipboard (macOS only)')
-  .option('--verbose', 'Enable verbose logging')
+  .option(
+    "--type <type>",
+    "Commit type: feat, fix, docs, style, refactor, perf, test, chore, ci, build",
+  )
+  .option("--scope <scope>", "Commit scope (optional)")
+  .option("--breaking", "Mark as breaking change")
+  .option("--engine <engine>", "Engine to use: openai, groq, or local")
+  .option("--model <model>", "AI model to use")
+  .option("--temperature <temp>", "AI temperature (0-2)", parseFloat)
+  .option("--file <path>", "Save commit message to file instead of stdout")
+  .option("--copy", "Copy commit message to clipboard (macOS only)")
+  .option("--verbose", "Enable verbose logging")
   .action(async (options) => {
-      try {
-          const config = loadConfig(options);
-          if (typeof config.exclude === "string") {
-            config.excludePatterns = config.exclude.split(",").map((p) => p.trim());
-          }
-          
+    try {
+      const config = loadConfig(options);
+      if (typeof config.exclude === "string") {
+        config.excludePatterns = config.exclude.split(",").map((p) => p.trim());
+      }
+
       await generateCommitMessage(config);
     } catch (error) {
-      console.error('Error:', error.message);
-      
+      console.error("Error:", error.message);
+
       if (options.verbose) {
         console.error(error.stack);
       }
-      
+
       process.exit(1);
     }
   });
 
-program
-  .addHelpText('after', `
+program.addHelpText(
+  "after",
+  `
 Examples:
   $ create-commit                         # Generate from staged changes
   $ create-commit --type feat             # Specify commit type
@@ -76,6 +80,7 @@ Environment Variables:
   GROQ_API_KEY                            # Groq API key
   OPENAI_API_KEY                         # OpenAI API key
   LOCAL_MODEL_ENDPOINT                   # Local model endpoint
-  `);
+  `,
+);
 
 program.parse(process.argv);

@@ -133,18 +133,18 @@ ${diff}
 // Commit message generation function
 async function generateCommitMessage(diff, engineConfig, openai) {
   const { type, scope, breaking } = engineConfig;
-  
-  const typePrompt = type ? 
-    `Use the commit type "${type}".` : 
-    'Determine the most appropriate commit type from: feat, fix, docs, style, refactor, perf, test, chore, ci, build.';
-    
-  const scopePrompt = scope ? 
-    `Use the scope "${scope}".` : 
-    'Determine an appropriate scope if relevant (e.g., api, ui, auth, db). Leave empty if not applicable.';
-    
-  const breakingPrompt = breaking ? 
-    'This is a BREAKING CHANGE that affects existing functionality.' : 
-    'Determine if this is a breaking change based on the diff.';
+
+  const typePrompt = type
+    ? `Use the commit type "${type}".`
+    : "Determine the most appropriate commit type from: feat, fix, docs, style, refactor, perf, test, chore, ci, build.";
+
+  const scopePrompt = scope
+    ? `Use the scope "${scope}".`
+    : "Determine an appropriate scope if relevant (e.g., api, ui, auth, db). Leave empty if not applicable.";
+
+  const breakingPrompt = breaking
+    ? "This is a BREAKING CHANGE that affects existing functionality."
+    : "Determine if this is a breaking change based on the diff.";
 
   const prompt = `Generate a conventional commit message for this git diff.
 
@@ -182,32 +182,40 @@ ${diff}
 
   // Parse commit message response
   const result = {
-    type: type || 'feat',
-    scope: scope || '',
-    description: '',
-    body: '',
+    type: type || "feat",
+    scope: scope || "",
+    description: "",
+    body: "",
     breaking: breaking || false,
-    breakingDescription: ''
+    breakingDescription: "",
   };
 
-  const lines = content.split('\n');
+  const lines = content.split("\n");
   for (const line of lines) {
     const trimmedLine = line.trim();
-    
-    if (trimmedLine.startsWith('TYPE:')) {
+
+    if (trimmedLine.startsWith("TYPE:")) {
       const extractedType = trimmedLine.substring(5).trim().toLowerCase();
       result.type = extractedType || result.type;
-    } else if (trimmedLine.startsWith('SCOPE:')) {
+    } else if (trimmedLine.startsWith("SCOPE:")) {
       const extractedScope = trimmedLine.substring(6).trim();
-      result.scope = extractedScope === 'empty' || extractedScope === 'none' ? '' : extractedScope;
-    } else if (trimmedLine.startsWith('DESCRIPTION:')) {
+      result.scope =
+        extractedScope === "empty" || extractedScope === "none"
+          ? ""
+          : extractedScope;
+    } else if (trimmedLine.startsWith("DESCRIPTION:")) {
       result.description = trimmedLine.substring(12).trim();
-    } else if (trimmedLine.startsWith('BODY:')) {
+    } else if (trimmedLine.startsWith("BODY:")) {
       const bodyContent = trimmedLine.substring(5).trim();
-      result.body = bodyContent === 'empty' || bodyContent === 'none' ? '' : bodyContent;
-    } else if (trimmedLine.startsWith('BREAKING:')) {
+      result.body =
+        bodyContent === "empty" || bodyContent === "none" ? "" : bodyContent;
+    } else if (trimmedLine.startsWith("BREAKING:")) {
       const breakingContent = trimmedLine.substring(9).trim();
-      if (breakingContent && breakingContent !== 'empty' && breakingContent !== 'none') {
+      if (
+        breakingContent &&
+        breakingContent !== "empty" &&
+        breakingContent !== "none"
+      ) {
         result.breakingDescription = breakingContent;
         result.breaking = true;
       }
@@ -216,7 +224,7 @@ ${diff}
 
   // Validate required fields
   if (!result.description) {
-    throw new Error('Failed to generate commit description');
+    throw new Error("Failed to generate commit description");
   }
 
   return result;
