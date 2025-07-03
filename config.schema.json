@@ -1,0 +1,126 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://github.com/faithappoh/taskfoundry/main/config.schema.json",
+    "title": "Create Task CLI Configuration",
+    "description": "Configuration schema for TaskFoundry CLI tool",
+    "type": "object",
+    "properties": {
+      "engine": {
+        "type": "string",
+        "enum": ["openai", "local"],
+        "default": "openai",
+        "description": "AI engine to use for generating task content"
+      },
+      "output": {
+        "type": "string",
+        "enum": ["markdown", "json"],
+        "default": "markdown",
+        "description": "Output format for generated content"
+      },
+      "staged": {
+        "type": "boolean",
+        "default": false,
+        "description": "Use staged changes instead of last commit"
+      },
+      "model": {
+        "type": "string",
+        "default": "gpt-4",
+        "description": "AI model to use (OpenAI model name or local model name)"
+      },
+      "temperature": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 2,
+        "default": 0.3,
+        "description": "AI model temperature for creativity control"
+      },
+      "maxTokens": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 4000,
+        "default": 1000,
+        "description": "Maximum tokens for AI response"
+      },
+      "customPrompt": {
+        "type": ["string", "null"],
+        "default": null,
+        "description": "Path to custom prompt template file"
+      },
+      "outputFile": {
+        "type": ["string", "null"],
+        "default": null,
+        "description": "File to save output to (instead of stdout)"
+      },
+      "includeFileNames": {
+        "type": "boolean",
+        "default": true,
+        "description": "Include file names in the analysis"
+      },
+      "includeDiffStats": {
+        "type": "boolean",
+        "default": true,
+        "description": "Include diff statistics in the analysis"
+      },
+      "excludePatterns": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "default": ["*.lock", "*.log", "node_modules/**", ".git/**", "dist/**", "build/**"],
+        "description": "Glob patterns to exclude from diff analysis"
+      },
+      "openai": {
+        "type": "object",
+        "properties": {
+          "apiKey": {
+            "type": ["string", "null"],
+            "description": "OpenAI API key (can also be set via OPENAI_API_KEY env var)"
+          },
+          "organization": {
+            "type": ["string", "null"],
+            "description": "OpenAI organization ID"
+          },
+          "baseURL": {
+            "type": ["string", "null"],
+            "description": "Custom OpenAI API base URL"
+          }
+        },
+        "additionalProperties": false
+      },
+      "local": {
+        "type": "object",
+        "properties": {
+          "endpoint": {
+            "type": "string",
+            "default": "http://localhost:11434",
+            "description": "Local model API endpoint"
+          },
+          "model": {
+            "type": "string",
+            "default": "llama2",
+            "description": "Local model name"
+          }
+        },
+        "additionalProperties": false
+      },
+      "templates": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string",
+            "description": "Custom prompt template with {diff} placeholder"
+          },
+          "markdown": {
+            "type": "string",
+            "description": "Markdown output template"
+          },
+          "json": {
+            "type": "object",
+            "description": "JSON output template structure"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "additionalProperties": false
+  }
