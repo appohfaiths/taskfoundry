@@ -91,7 +91,7 @@ function findProjectConfig() {
  */
 function validateConfig(config) {
   const validOutputFormats = ['markdown', 'json'];
-  const validEngines = ['openai', 'local'];
+  const validEngines = ['openai', 'groq', 'local'];
 
   if (!validOutputFormats.includes(config.output)) {
     throw new Error(`Invalid output format: ${config.output}. Must be one of: ${validOutputFormats.join(', ')}`);
