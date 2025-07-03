@@ -64,6 +64,7 @@ Examples:
   $ create-task --output json             # Output as JSON
   $ create-task --detailed                # Generate detailed task description
   $ create-task --engine local            # Use local model
+  $ create-task --staged --engine groq --detailed --output markdown           # Generate detailed task from staged changes
   $ create-task --file task.md            # Save to file
   $ create-task --commit abc123           # Compare against specific commit
   $ create-task --exclude "*.test.js"     # Exclude test files
