@@ -14,6 +14,7 @@ Generate task content and commit messages from your Git diffs — in Markdown or
 - ⚡ Fast and CLI-friendly — built for dev workflows
 - 🆓 **Free tier available** with Groq
 - 📝 **Concise or detailed** task descriptions
+- 🔗 **Built-in aliases** for faster workflows
 
 ---
 
@@ -27,12 +28,14 @@ npm install -g taskfoundry
 
 ## 🛠️ Usage
 
-TaskFoundry provides two main commands:
+TaskFoundry provides two main commands with convenient aliases:
 
 ### 📋 Task Generation
 
 ```bash
 create-task [options]
+# or use the alias:
+ct [options]
 ```
 
 #### Options
@@ -53,33 +56,51 @@ create-task [options]
 ```bash
 # Generate a task from latest commit diff (uses Groq by default)
 create-task
+# or
+ct
 
 # Use staged files instead
 create-task --staged
+# or
+ct --staged
 
 # Generate detailed task description
 create-task --detailed
+# or
+ct --detailed
 
 # Output as JSON with detailed description
 create-task --detailed --output json
+# or
+ct --detailed --output json
 
 # Use with a specific engine
 create-task --engine groq
+# or
+ct --engine groq
 
 # Use a local model
 create-task --engine local
+# or
+ct --engine local
 
 # Output a detailed markdown tasks using groq
 create-task --staged --engine groq --detailed --output markdown
+# or
+ct --staged --engine groq --detailed --output markdown
 
 # Save to file
 create-task --file task.md
+# or
+ct --file task.md
 ```
 
 ### 💬 Commit Message Generation
 
 ```bash
 create-commit [options]
+# or use the alias:
+cm [options]
 ```
 
 #### Options
@@ -101,21 +122,33 @@ create-commit [options]
 ```bash
 # Generate commit message from staged changes
 create-commit
+# or
+cm
 
 # Specify commit type
 create-commit --type feat
+# or
+cm --type feat
 
 # Add scope and mark as breaking change
 create-commit --type feat --scope api --breaking
+# or
+cm --type feat --scope api --breaking
 
 # Save to file for editing before commit
 create-commit --file commit-message.txt
+# or
+cm --file commit-message.txt
 
 # Copy to clipboard (macOS)
 create-commit --copy
+# or
+cm --copy
 
 # Use different engine
 create-commit --engine openai --type docs
+# or
+cm --engine openai --type docs
 ```
 
 #### Commit Types
@@ -132,6 +165,30 @@ create-commit --engine openai --type docs
 | `chore`    | Changes to the build process or auxiliary tools               |
 | `ci`       | Changes to CI configuration files and scripts                 |
 | `build`    | Changes that affect the build system or external dependencies |
+
+---
+
+## 🚀 Quick Start
+
+For the fastest workflow, use the built-in aliases:
+
+```bash
+# Stage your changes
+git add .
+
+# Generate commit message with alias
+cm --type feat --scope api
+
+# Generate detailed task description with alias
+ct --staged --detailed
+```
+
+### Available Commands & Aliases
+
+| Full Command     | Alias | Description                    |
+|------------------|-------|--------------------------------|
+| `create-task`    | `ct`  | Generate task descriptions     |
+| `create-commit`  | `cm`  | Generate commit messages       |
 
 ---
 
@@ -196,6 +253,8 @@ Generate a default config file:
 
 ```bash
 create-task init
+# or
+ct init
 ```
 
 ---
@@ -264,16 +323,29 @@ BREAKING CHANGE: Authentication endpoints now require API version in headers and
 # 1. Stage your changes
 git add .
 
-# 2. Generate and review commit message
-create-commit --type feat --scope api --file commit-msg.txt
+# 2. Generate and review commit message (using alias)
+cm --type feat --scope api --file commit-msg.txt
 
 # 3. Edit if needed, then commit
 git commit -F commit-msg.txt
 
-# 4. Generate task description for your work item
-create-task --staged --detailed --file task.md
+# 4. Generate task description for your work item (using alias)
+ct --staged --detailed --file task.md
 
 # 5. Copy task content to your project management tool
+```
+
+### Fast Workflow with Aliases
+
+```bash
+# Quick commit message generation
+git add . && cm --type feat
+
+# Quick task generation
+ct --staged --detailed --copy
+
+# Pipeline workflow
+git add . && cm --file msg.txt && git commit -F msg.txt && ct --detailed
 ```
 
 ### Integration with Git Hooks
@@ -284,7 +356,7 @@ You can integrate TaskFoundry into your git workflow:
 # .git/hooks/prepare-commit-msg
 #!/bin/sh
 if [ -z "$2" ]; then
-  create-commit --file "$1"
+  cm --file "$1"
 fi
 ```
 
@@ -295,7 +367,7 @@ fi
 ```bash
 # Clone the repo
 npm install
-npm link  # Makes 'create-task' and 'create-commit' globally available
+npm link  # Makes 'create-task', 'create-commit', 'ct', and 'cm' globally available
 
 # Run tests
 npm test
