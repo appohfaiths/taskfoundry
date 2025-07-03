@@ -1,12 +1,13 @@
 # TaskFoundry 🛠️
 
-Generate task content from your Git diffs — in Markdown or JSON — powered by OpenAI, Groq, or your own local model.
+Generate task content and commit messages from your Git diffs — in Markdown or JSON — powered by OpenAI, Groq, or your own local model.
 
 ---
 
 ## ✨ Features
 
 - 🧠 **AI-Powered Task Summaries** from your Git changes
+- 📝 **Conventional Commit Messages** generated from staged changes
 - 🔀 Support for **staged** or latest commit diffs
 - 🧾 Output in **Markdown** (default) or **JSON**
 - 🤖 Use **OpenAI**, **Groq** (recommended), or your **own local model**
@@ -26,11 +27,15 @@ npm install -g taskfoundry
 
 ## 🛠️ Usage
 
+TaskFoundry provides two main commands:
+
+### 📋 Task Generation
+
 ```bash
 create-task [options]
 ```
 
-### Options
+#### Options
 
 | Flag                | Description                                     |
 |---------------------|-------------------------------------------------|
@@ -43,7 +48,7 @@ create-task [options]
 | `--detailed`        | Generate comprehensive task descriptions        |
 | `--verbose`         | Enable verbose logging                          |
 
-### Examples
+#### Examples
 
 ```bash
 # Generate a task from latest commit diff (uses Groq by default)
@@ -70,6 +75,63 @@ create-task --staged --engine groq --detailed --output markdown
 # Save to file
 create-task --file task.md
 ```
+
+### 💬 Commit Message Generation
+
+```bash
+create-commit [options]
+```
+
+#### Options
+
+| Flag                | Description                                     |
+|---------------------|-------------------------------------------------|
+| `--type`            | Commit type: `feat`, `fix`, `docs`, `style`, etc. |
+| `--scope`           | Commit scope (optional)                        |
+| `--breaking`        | Mark as breaking change                        |
+| `--engine`          | Engine: `groq` (recommended), `openai`, or `local` |
+| `--model`           | AI model to use (optional)                     |
+| `--temperature`     | AI temperature (0-2, default: 0.2)             |
+| `--file`            | Save commit message to file instead of stdout  |
+| `--copy`            | Copy commit message to clipboard (macOS only)  |
+| `--verbose`         | Enable verbose logging                          |
+
+#### Examples
+
+```bash
+# Generate commit message from staged changes
+create-commit
+
+# Specify commit type
+create-commit --type feat
+
+# Add scope and mark as breaking change
+create-commit --type feat --scope api --breaking
+
+# Save to file for editing before commit
+create-commit --file commit-message.txt
+
+# Copy to clipboard (macOS)
+create-commit --copy
+
+# Use different engine
+create-commit --engine openai --type docs
+```
+
+#### Commit Types
+
+| Type       | Description                                                    |
+|------------|----------------------------------------------------------------|
+| `feat`     | A new feature                                                  |
+| `fix`      | A bug fix                                                      |
+| `docs`     | Documentation only changes                                     |
+| `style`    | Changes that do not affect the meaning of the code            |
+| `refactor` | A code change that neither fixes a bug nor adds a feature     |
+| `perf`     | A code change that improves performance                        |
+| `test`     | Adding missing tests or correcting existing tests             |
+| `chore`    | Changes to the build process or auxiliary tools               |
+| `ci`       | Changes to CI configuration files and scripts                 |
+| `build`    | Changes that affect the build system or external dependencies |
 
 ---
 
@@ -140,7 +202,9 @@ create-task init
 
 ## 🧪 Sample Output
 
-### Concise (default)
+### Task Generation
+
+#### Concise (default)
 ```
 **Title**: Refactor auth service
 
@@ -149,7 +213,7 @@ create-task init
 **Technical considerations**: Introduced helper to decode JWT. Ensure compatibility with existing clients.
 ```
 
-### Detailed (--detailed flag)
+#### Detailed (--detailed flag)
 ```
 **Title**: Implement End-to-End Tests for Employee Management Portal
 
@@ -166,13 +230,62 @@ Test coverage requirements:
 **Technical considerations**: Use Playwright as the testing framework with proper test organization using beforeEach setup for common operations. Implement explicit waiting mechanisms for elements and include proper assertions for success messages. Consider adding data cleanup for test isolation, using unique identifiers for test data, and implementing parallel test execution for efficiency. Add appropriate error handling and confirmation dialog testing.
 ```
 
-### JSON Format
+#### JSON Format
 ```json
 {
   "title": "Refactor auth service",
   "summary": "Simplified token handling logic and added expiry validation.",
   "tech": "Introduced helper to decode JWT. Ensure compatibility with existing clients."
 }
+```
+
+### Commit Message Generation
+
+```
+feat(auth): add JWT token validation
+
+Implement comprehensive token validation including expiry checks and signature verification to improve security and prevent unauthorized access.
+```
+
+With breaking change:
+```
+feat(api)!: restructure user authentication endpoints
+
+BREAKING CHANGE: Authentication endpoints now require API version in headers and return different response structure.
+```
+
+---
+
+## 🔄 Workflow Integration
+
+### Typical Development Workflow
+
+```bash
+# 1. Stage your changes
+git add .
+
+# 2. Generate and review commit message
+create-commit --type feat --scope api --file commit-msg.txt
+
+# 3. Edit if needed, then commit
+git commit -F commit-msg.txt
+
+# 4. Generate task description for your work item
+create-task --staged --detailed --file task.md
+
+# 5. Copy task content to your project management tool
+```
+
+### Integration with Git Hooks
+
+You can integrate TaskFoundry into your git workflow:
+
+```bash
+# .git/hooks/prepare-commit-msg
+#!/bin/sh
+if [ -z "$2" ]; then
+  create-commit --file "$1"
+fi
 ```
 
 ---
@@ -182,7 +295,7 @@ Test coverage requirements:
 ```bash
 # Clone the repo
 npm install
-npm link  # Makes 'create-task' globally available
+npm link  # Makes 'create-task' and 'create-commit' globally available
 
 # Run tests
 npm test
@@ -201,7 +314,7 @@ Apache-2.0 — happy tasking!
 
 ## 💡 Inspiration
 
-TaskFoundry was built to speed up dev documentation and reduce the burden of writing DevOps tickets manually.
+TaskFoundry was built to speed up dev documentation and reduce the burden of writing DevOps tickets and commit messages manually.
 
 ---
 
