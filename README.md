@@ -198,12 +198,12 @@ Apache-2.0 — happy tasking!
 
 ## 💡 Inspiration
 
-TaskFoundry was built to speed up dev documentation and reduce the burden of writing Azure DevOps tickets manually.
+TaskFoundry was built to speed up dev documentation and reduce the burden of writing DevOps tickets manually.
 
 ---
 
 ## ✍🏽 Contribute
 
-Have ideas or want to add a local model integration? PRs welcome!
+Have ideas or want to add a local model integration? PRs welcome! Or drop me a message.
 
 ---
