@@ -20,6 +20,9 @@ importers:
       openai:
         specifier: ^5.8.2
         version: 5.8.2
+      taskfoundry:
+        specifier: 'link:'
+        version: 'link:'
     devDependencies:
       '@eslint/js':
         specifier: ^9.30.1

@@ -34,29 +34,6 @@ program
   .option("--template <path>", "Custom prompt template file")
   .option("--verbose", "Enable verbose logging")
   .option("--detailed", "Show detailed summary and task descriptions")
-  .addHelpText(
-    "after",
-    `
-Examples:
-  $ create-task                           # Generate from last commit
-  $ create-task --staged                  # Generate from staged changes
-  $ create-task --output json             # Output as JSON
-  $ create-task --engine local            # Use local model
-  $ create-task --file task.md            # Save to file
-  $ create-task --commit abc123           # Compare against specific commit
-  $ create-task --exclude "*.test.js"     # Exclude test files
-
-Configuration:
-  Create a .taskfoundry.json file in your project or home directory
-  to set default options. CLI arguments override config file settings.
-
-Environment Variables:
-  Set these in a .env file or your shell:
-  GROQ_API_KEY                            # Groq API key
-  OPENAI_API_KEY                         # OpenAI API key
-  LOCAL_MODEL_ENDPOINT                   # Local model endpoint
-  `,
-  )
   .action(async (options) => {
     try {
       // Load configuration with CLI options override
@@ -80,6 +57,29 @@ Environment Variables:
   });
 
 program
+  .addHelpText('after', `
+Examples:
+  $ create-task                           # Generate from last commit
+  $ create-task --staged                  # Generate from staged changes
+  $ create-task --output json             # Output as JSON
+  $ create-task --detailed                # Generate detailed task description
+  $ create-task --engine local            # Use local model
+  $ create-task --file task.md            # Save to file
+  $ create-task --commit abc123           # Compare against specific commit
+  $ create-task --exclude "*.test.js"     # Exclude test files
+
+Configuration:
+  Create a .taskfoundry.json file in your project or home directory
+  to set default options. CLI arguments override config file settings.
+
+Environment Variables:
+  Set these in a .env file or your shell:
+  GROQ_API_KEY                            # Groq API key
+  OPENAI_API_KEY                         # OpenAI API key
+  LOCAL_MODEL_ENDPOINT                   # Local model endpoint
+  `);
+
+program
   .command("config")
   .description("Show configuration schema and current settings")
   .action(() => {
@@ -100,6 +100,7 @@ program
       model: "llama-3.3-70b-versatile",
       temperature: 0.3,
       maxTokens: 1000,
+      detailed: false,
       includeFileNames: true,
       includeDiffStats: true,
       excludePatterns: [
