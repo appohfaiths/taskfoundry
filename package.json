@@ -1,17 +1,85 @@
 {
   "name": "taskfoundry",
   "version": "0.1.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "type": "module",
+  "bin": {
+    "create-task": "./bin/index.js"
   },
-  "keywords": [],
+  "description": "",
+  "main": "src/createTask.js",
+  "scripts": {
+    "start": "node bin/index.js",
+    "test": "node --test test/*.test.js",
+    "test:unit": "node --test test/unit.test.js",
+    "test:integration": "node --test test/integration.test.js",
+    "test:watch": "node --test --watch test/*.test.js",
+    "test:coverage": "node --test --experimental-test-coverage test/*.test.js",
+    "lint": "eslint src/ bin/ test/",
+    "lint:fix": "eslint --fix src/ bin/ test/",
+    "format": "prettier --write src/ bin/ test/",
+    "format:check": "prettier --check src/ bin/ test/",
+    "precommit": "npm run lint && npm run format:check && npm run test",
+    "prepublishOnly": "npm run precommit",
+    "local:install": "npm link",
+    "local:uninstall": "npm unlink",
+    "build": "echo 'No build step required'",
+    "clean": "rm -rf node_modules/.cache",
+    "dev": "npm run local:install && npm run test:watch"
+  },
+  "keywords": [
+    "cli",
+    "git",
+    "diff",
+    "devops",
+    "azure-devops",
+    "github",
+    "gitlab",
+    "bitbucket",
+    "task generation",
+    "task",
+    "ai",
+    "openai",
+    "automation",
+    "productivity",
+    "developer tools"
+  ],
+  "author": "Faith S. Appoh <appohfaiths@gmail.com>",
+  "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/faithappoh/taskfoundry.git"
   },
-  "author": "Faith S. Appoh",
-  "license": "Apache-2.0",
-  "packageManager": "pnpm@10.4.1"
+  "bugs": {
+    "url": "https://github.com/faithappoh/taskfoundry/issues"
+  },
+  "homepage": "https://github.com/faithappoh/taskfoundry#readme",
+  "dependencies": {
+    "commander": "^14.0.0",
+    "dotenv": "^17.0.1",
+    "openai": "^5.8.2"
+  },
+  "devDependencies": {
+    "eslint": "^9.30.1",
+    "prettier": "^3.6.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "bin",
+    "src",
+    "test",
+    "package.json",
+    ".gitignore",
+    "README.md",
+    "LICENSE",
+    ".env.example",
+    "config.schema.json",
+    "taskfoundry.json"
+  ],
+  "preferGlobal": true,
+  "publishConfig": {
+    "access": "public"
+  },
+  "packageManager": "pnpm@10.12.4"
 }
