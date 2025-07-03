@@ -7,8 +7,8 @@
     "properties": {
       "engine": {
         "type": "string",
-        "enum": ["openai", "local"],
-        "default": "openai",
+        "enum": ["groq", "openai", "local"],
+        "default": "groq",
         "description": "AI engine to use for generating task content"
       },
       "output": {
@@ -24,8 +24,8 @@
       },
       "model": {
         "type": "string",
-        "default": "gpt-4",
-        "description": "AI model to use (OpenAI model name or local model name)"
+        "default": "llama-3.3-70b-versatile",
+        "description": "AI model to use (Upstream model name or local model name)"
       },
       "temperature": {
         "type": "number",
@@ -83,6 +83,16 @@
           "baseURL": {
             "type": ["string", "null"],
             "description": "Custom OpenAI API base URL"
+          }
+        },
+        "additionalProperties": false
+      },
+      "groq": {
+        "type": "object",
+        "properties": {
+          "apiKey": {
+            "type": ["string", "null"],
+            "description": "Groq API key (can also be set via GROQ_API_KEY env var)"
           }
         },
         "additionalProperties": false

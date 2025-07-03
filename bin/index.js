@@ -93,10 +93,10 @@ program
   .description("Create a default .taskfoundry.json config file")
   .action(() => {
     const defaultConfig = {
-      engine: "openai",
+      engine: "groq",
       output: "markdown",
       staged: false,
-      model: "gpt-4",
+      model: "llama-3.3-70b-versatile",
       temperature: 0.3,
       maxTokens: 1000,
       includeFileNames: true,

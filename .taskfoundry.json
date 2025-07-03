@@ -1,6 +1,6 @@
 {
     "$schema": "https://github.com/faithappoh/taskfoundry/main/config.schema.json",
-    "engine": "openai",
+    "engine": "groq",
     "output": "markdown",
     "staged": false,
     "model": "",

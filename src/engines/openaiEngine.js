@@ -2,11 +2,21 @@ import { config } from "dotenv";
 import OpenAI from "openai";
 
 config();
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-export async function callOpenAI(diff) {
-  if (!process.env.OPENAI_API_KEY) {
-    throw new Error("Missing OpenAI API key. Set OPENAI_API_KEY in .env");
+
+let openaiClient = null;
+
+function getOpenAIClient() {
+  if (!openaiClient) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error("Missing OpenAI API key. Set OPENAI_API_KEY in .env");
+    }
+    openaiClient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
   }
+  return openaiClient;
+}
+
+export async function callOpenAI(diff) {
+  const openai = getOpenAIClient();
 
   const prompt = `Analyze this git diff and create a task description for Azure DevOps or similar tools. 
     Respond in exactly this format:

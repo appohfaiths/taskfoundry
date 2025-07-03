@@ -9,10 +9,10 @@ const CONFIG_FILE_NAMES = [
 ];
 
 const DEFAULT_CONFIG = {
-  engine: "openai",
+  engine: "groq",
   output: "markdown",
   staged: false,
-  model: "gpt-4",
+  model: "llama-3.3-70b-versatile",
   temperature: 0.3,
   maxTokens: 1000,
   customPrompt: null,
@@ -144,8 +144,8 @@ export function getConfigSchema() {
     },
     model: {
       type: "string",
-      default: "gpt-4",
-      description: "OpenAI model to use",
+      default: "llama-3.3-70b-versatile",
+      description: "AI model to use (Upstream model name or local model name)",
     },
     temperature: {
       type: "number",
