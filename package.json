@@ -6,7 +6,7 @@
     "create-task": "./bin/create-task.js",
     "create-commit": "./bin/create-commit.js",
     "ct": "./bin/create-task.js",
-    "cc": "./bin/create-commit.js"
+    "cm": "./bin/create-commit.js"
   },
   "description": "",
   "main": "src/createTask.js",
