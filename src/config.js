@@ -15,6 +15,7 @@ const DEFAULT_CONFIG = {
   model: "llama-3.3-70b-versatile",
   temperature: 0.3,
   maxTokens: 1000,
+  detailed: false,
   customPrompt: null,
   outputFile: null,
   includeFileNames: true,
@@ -127,9 +128,9 @@ export function getConfigSchema() {
   return {
     engine: {
       type: "string",
-      default: "openai",
-      description: "AI engine to use (openai or local)",
-      enum: ["openai", "local"],
+      default: "groq",
+      description: "AI engine to use",
+      enum: ["groq", "openai", "local"],
     },
     output: {
       type: "string",
