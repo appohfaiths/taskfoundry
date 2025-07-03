@@ -12,7 +12,7 @@ export async function callGroq(diff, engineConfig = {}) {
   const isDetailed = engineConfig.detailed || false;
 
   const basePrompt = `Analyze this git diff and create a task description for Azure DevOps or similar tools.`;
-  
+
   const concisePrompt = `${basePrompt}
 Respond in exactly this format:
 
@@ -60,20 +60,27 @@ ${diff}
       },
     ],
     temperature: engineConfig.temperature || 0.3,
-    max_tokens: isDetailed ? (engineConfig.maxTokens || 2000) : (engineConfig.maxTokens || 1000),
+    max_tokens: isDetailed
+      ? engineConfig.maxTokens || 2000
+      : engineConfig.maxTokens || 1000,
   };
 
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+  const response = await fetch(
+    "https://api.groq.com/openai/v1/chat/completions",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+      },
+      body: JSON.stringify(requestBody),
     },
-    body: JSON.stringify(requestBody),
-  });
+  );
 
   if (!response.ok) {
-    throw new Error(`Groq API request failed: ${response.status} ${response.statusText}`);
+    throw new Error(
+      `Groq API request failed: ${response.status} ${response.statusText}`,
+    );
   }
 
   const data = await response.json();
@@ -87,7 +94,7 @@ ${diff}
 
   for (const line of lines) {
     const trimmedLine = line.trim();
-    
+
     if (trimmedLine.startsWith("TITLE:")) {
       if (currentSection && currentContent.length > 0) {
         result[currentSection] = currentContent.join("\n").trim();

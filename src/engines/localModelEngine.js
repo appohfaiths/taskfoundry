@@ -1,10 +1,10 @@
 export async function callLocalModel(diff, engineConfig = {}) {
   // Stub: Replace with integration to your local model (e.g., Ollama, llama.cpp)
   const isDetailed = engineConfig.detailed || false;
-  
+
   console.log(`Local model would process diff of length: ${diff.length}`);
   console.log(`Detailed mode: ${isDetailed}`);
-  
+
   if (isDetailed) {
     return {
       title: "Local Model: Comprehensive Development Task",

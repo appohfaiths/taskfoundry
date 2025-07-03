@@ -141,7 +141,7 @@ export function getConfigSchema() {
     detailed: {
       type: "boolean",
       default: false,
-      description: "Generate detailed task descriptions"
+      description: "Generate detailed task descriptions",
     },
     staged: {
       type: "boolean",

@@ -12,7 +12,7 @@ export async function callOpenAI(diff, engineConfig = {}) {
   const isDetailed = engineConfig.detailed || false; // Changed from isVerbose
 
   const basePrompt = `Analyze this git diff and create a task description for Azure DevOps or similar tools.`;
-  
+
   const concisePrompt = `${basePrompt}
 Respond in exactly this format:
 
@@ -50,14 +50,21 @@ Provide detailed, actionable information that would help a developer understand 
 
   const chat = await openai.chat.completions.create({
     model: engineConfig.model || "gpt-3.5-turbo",
-    messages: [{ role: "user", content: `${prompt}
+    messages: [
+      {
+        role: "user",
+        content: `${prompt}
 
 Git diff:
 \`\`\`
 ${diff}
-\`\`\`` }],
+\`\`\``,
+      },
+    ],
     temperature: engineConfig.temperature || 0.3,
-    max_tokens: isDetailed ? (engineConfig.maxTokens || 2000) : (engineConfig.maxTokens || 1000), // Changed from isVerbose
+    max_tokens: isDetailed
+      ? engineConfig.maxTokens || 2000
+      : engineConfig.maxTokens || 1000, // Changed from isVerbose
   });
 
   const content = chat.choices[0].message.content.trim();
@@ -70,7 +77,7 @@ ${diff}
 
   for (const line of lines) {
     const trimmedLine = line.trim();
-    
+
     if (trimmedLine.startsWith("TITLE:")) {
       if (currentSection && currentContent.length > 0) {
         result[currentSection] = currentContent.join("\n").trim();
