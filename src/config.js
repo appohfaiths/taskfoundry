@@ -9,7 +9,7 @@ const CONFIG_FILE_NAMES = [
 ];
 
 const DEFAULT_CONFIG = {
-  engine: "groq",
+  engine: "auto",
   output: "markdown",
   staged: false,
   model: "llama-3.3-70b-versatile",

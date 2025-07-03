@@ -21,7 +21,7 @@ program
   .version(packageJson.version)
   .option("--staged", "Use staged changes (git diff --cached)")
   .option("--output <format>", "Output format: markdown or json")
-  .option("--engine <engine>", "Engine to use: openai, groq, or local")
+  .option("--engine <engine>", "Engine to use: auto, groq, openai, freetier, or local")
   .option("--model <model>", "AI model to use")
   .option("--temperature <temp>", "AI temperature (0-2)", parseFloat)
   .option("--max-tokens <tokens>", "Maximum tokens for AI response", parseInt)
@@ -56,31 +56,40 @@ program
     }
   });
 
-program.addHelpText(
-  "after",
-  `
-Examples:
-  $ create-task                           # Generate from last commit
-  $ create-task --staged                  # Generate from staged changes
-  $ create-task --output json             # Output as JSON
-  $ create-task --detailed                # Generate detailed task description
-  $ create-task --engine local            # Use local model
-  $ create-task --staged --engine groq --detailed --output markdown           # Generate detailed task from staged changes
-  $ create-task --file task.md            # Save to file
-  $ create-task --commit abc123           # Compare against specific commit
-  $ create-task --exclude "*.test.js"     # Exclude test files
-
-Configuration:
-  Create a .taskfoundry.json file in your project or home directory
-  to set default options. CLI arguments override config file settings.
-
-Environment Variables:
-  Set these in a .env file or your shell:
-  GROQ_API_KEY                            # Groq API key
-  OPENAI_API_KEY                         # OpenAI API key
-  LOCAL_MODEL_ENDPOINT                   # Local model endpoint
-  `,
-);
+  program.addHelpText(
+    "after",
+    `
+  Examples:
+    $ create-task                           # Generate from last commit (auto-detects engine)
+    $ create-task --staged                  # Generate from staged changes
+    $ create-task --output json             # Output as JSON
+    $ create-task --detailed                # Generate detailed task description
+    $ create-task --engine freetier         # Use free tier (no API key required)
+    $ create-task --engine groq             # Use Groq with your API key
+    $ create-task --engine local            # Use local model
+    $ create-task --staged --engine groq --detailed --output markdown           # Generate detailed task from staged changes
+    $ create-task --file task.md            # Save to file
+    $ create-task --commit abc123           # Compare against specific commit
+    $ create-task --exclude "*.test.js"     # Exclude test files
+  
+  Engines:
+    auto        Automatically selects best available engine (default)
+    groq        Use Groq API (requires GROQ_API_KEY)
+    openai      Use OpenAI API (requires OPENAI_API_KEY)
+    freetier    Use free tier (no API key required, 50 requests/day)
+    local       Use local model endpoint
+  
+  Configuration:
+    Create a .taskfoundry.json file in your project or home directory
+    to set default options. CLI arguments override config file settings.
+  
+  Environment Variables:
+    Set these in a .env file or your shell:
+    GROQ_API_KEY                            # Groq API key
+    OPENAI_API_KEY                         # OpenAI API key
+    LOCAL_MODEL_ENDPOINT                   # Local model endpoint
+    `,
+  );
 
 program
   .command("config")
@@ -97,7 +106,7 @@ program
   .description("Create a default .taskfoundry.json config file")
   .action(() => {
     const defaultConfig = {
-      engine: "groq",
+      engine: "auto",
       output: "markdown",
       staged: false,
       model: "llama-3.3-70b-versatile",

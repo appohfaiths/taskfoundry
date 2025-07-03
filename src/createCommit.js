@@ -49,7 +49,7 @@ export async function generateCommitMessage(options) {
       type: options.type,
       scope: options.scope,
       breaking: options.breaking || false,
-      engine: options.engine || config.engine,
+      engine: options.engine || config.engine || "auto", // Default to auto
       model: options.model || config.model,
       temperature: options.temperature || config.temperature,
     });
@@ -97,39 +97,31 @@ export async function generateCommitMessage(options) {
 async function generateCommitMessageFromDiff(diff, options) {
   // Load the appropriate engine
   let engineModule;
+  let result;
+  
   switch (options.engine) {
+    case "auto":
+      engineModule = await import("./engines/autoEngine.js");
+      result = await engineModule.callAuto(diff, { ...options, commitMode: true });
+      break;
     case "openai":
       engineModule = await import("./engines/openaiEngine.js");
+      result = await engineModule.callOpenAI(diff, { ...options, commitMode: true });
       break;
     case "groq":
       engineModule = await import("./engines/groqEngine.js");
+      result = await engineModule.callGroq(diff, { ...options, commitMode: true });
+      break;
+    case "freetier":
+      engineModule = await import("./engines/freeTierEngine.js");
+      result = await engineModule.callFreeTier(diff, { ...options, commitMode: true });
       break;
     case "local":
       engineModule = await import("./engines/localModelEngine.js");
+      result = await engineModule.callLocalModel(diff, { ...options, commitMode: true });
       break;
     default:
       throw new Error(`Unknown engine: ${options.engine}`);
-  }
-
-  // Create engine config for commit message generation
-  const engineConfig = {
-    model: options.model,
-    temperature: options.temperature || 0.3,
-    maxTokens: 500,
-    commitMode: true,
-    type: options.type,
-    scope: options.scope,
-    breaking: options.breaking,
-  };
-
-  // Call the appropriate engine
-  let result;
-  if (options.engine === "openai") {
-    result = await engineModule.callOpenAI(diff, engineConfig);
-  } else if (options.engine === "groq") {
-    result = await engineModule.callGroq(diff, engineConfig);
-  } else if (options.engine === "local") {
-    result = await engineModule.callLocalModel(diff, engineConfig);
   }
 
   return result;

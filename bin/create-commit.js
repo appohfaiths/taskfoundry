@@ -25,7 +25,7 @@ program
   )
   .option("--scope <scope>", "Commit scope (optional)")
   .option("--breaking", "Mark as breaking change")
-  .option("--engine <engine>", "Engine to use: openai, groq, or local")
+  .option("--engine <engine>", "Engine to use: auto, openai, groq, freetier, or local")
   .option("--model <model>", "AI model to use")
   .option("--temperature <temp>", "AI temperature (0-2)", parseFloat)
   .option("--file <path>", "Save commit message to file instead of stdout")
@@ -50,37 +50,45 @@ program
     }
   });
 
-program.addHelpText(
-  "after",
-  `
-Examples:
-  $ create-commit                         # Generate from staged changes
-  $ create-commit --type feat             # Specify commit type
-  $ create-commit --scope api             # Add scope
-  $ create-commit --breaking              # Mark as breaking change
-  $ create-commit --file commit-msg.txt   # Save to file
-  $ create-commit --copy                  # Copy to clipboard (macOS)
-
-Commit Types:
-  feat      A new feature
-  fix       A bug fix
-  docs      Documentation only changes
-  style     Changes that do not affect the meaning of the code
-  refactor  A code change that neither fixes a bug nor adds a feature
-  perf      A code change that improves performance
-  test      Adding missing tests or correcting existing tests
-  chore     Changes to the build process or auxiliary tools
-  ci        Changes to CI configuration files and scripts
-  build     Changes that affect the build system or external dependencies
-
-Configuration:
-  Uses the same .taskfoundry.json config file as create-task
+  program.addHelpText(
+    "after",
+    `
+  Examples:
+    $ create-commit                         # Generate from staged changes (auto-detects engine)
+    $ create-commit --type feat             # Specify commit type
+    $ create-commit --scope api             # Add scope
+    $ create-commit --breaking              # Mark as breaking change
+    $ create-commit --engine freetier       # Use free tier (no API key required)
+    $ create-commit --file commit-msg.txt   # Save to file
+    $ create-commit --copy                  # Copy to clipboard (macOS)
   
-Environment Variables:
-  GROQ_API_KEY                            # Groq API key
-  OPENAI_API_KEY                         # OpenAI API key
-  LOCAL_MODEL_ENDPOINT                   # Local model endpoint
-  `,
-);
+  Engines:
+    auto        Automatically selects best available engine (default)
+    groq        Use Groq API (requires GROQ_API_KEY)
+    openai      Use OpenAI API (requires OPENAI_API_KEY)
+    freetier    Use free tier (no API key required, 50 requests/day)
+    local       Use local model endpoint
+  
+  Commit Types:
+    feat      A new feature
+    fix       A bug fix
+    docs      Documentation only changes
+    style     Changes that do not affect the meaning of the code
+    refactor  A code change that neither fixes a bug nor adds a feature
+    perf      A code change that improves performance
+    test      Adding missing tests or correcting existing tests
+    chore     Changes to the build process or auxiliary tools
+    ci        Changes to CI configuration files and scripts
+    build     Changes that affect the build system or external dependencies
+  
+  Configuration:
+    Uses the same .taskfoundry.json config file as create-task
+    
+  Environment Variables:
+    GROQ_API_KEY                            # Groq API key
+    OPENAI_API_KEY                         # OpenAI API key
+    LOCAL_MODEL_ENDPOINT                   # Local model endpoint
+    `,
+  );
 
 program.parse(process.argv);
