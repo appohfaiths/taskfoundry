@@ -1,15 +1,17 @@
 {
   "name": "taskfoundry",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "type": "module",
   "bin": {
     "create-task": "./bin/create-task.js",
-    "create-commit": "./bin/create-commit.js"
+    "create-commit": "./bin/create-commit.js",
+    "ct": "./bin/create-task.js",
+    "cc": "./bin/create-commit.js"
   },
   "description": "",
   "main": "src/createTask.js",
   "scripts": {
-    "start": "node bin/index.js",
+    "start": "node bin/create-task.js",
     "test": "node --test test/*.test.js",
     "test:unit": "node --test test/unit.test.js",
     "test:integration": "node --test test/integration.test.js",
