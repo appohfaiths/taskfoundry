@@ -3,7 +3,7 @@
     "engine": "openai",
     "output": "markdown",
     "staged": false,
-    "model": "gpt-4",
+    "model": "",
     "temperature": 0.3,
     "maxTokens": 1000,
     "customPrompt": null,
@@ -24,6 +24,9 @@
       "apiKey": null,
       "organization": null,
       "baseURL": null
+    },
+    "groq": {
+      "apiKey": null
     },
     "local": {
       "endpoint": "http://localhost:11434",
