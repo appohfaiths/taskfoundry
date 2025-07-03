@@ -56,13 +56,16 @@ create-task --staged
 create-task --detailed
 
 # Output as JSON with detailed description
-create-task --output json --detailed
+create-task --detailed --output json
 
-# Use OpenAI engine
-create-task --engine openai
+# Use with a specific engine
+create-task --engine groq
 
 # Use a local model
 create-task --engine local
+
+# Output a detailed markdown tasks using groq
+create-task --staged --engine groq --detailed --output markdown
 
 # Save to file
 create-task --file task.md
