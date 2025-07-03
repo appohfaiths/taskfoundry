@@ -1,0 +1,43 @@
+{
+    "$schema": "https://github.com/faithappoh/taskfoundry/main/config.schema.json",
+    "engine": "openai",
+    "output": "markdown",
+    "staged": false,
+    "model": "gpt-4",
+    "temperature": 0.3,
+    "maxTokens": 1000,
+    "customPrompt": null,
+    "outputFile": null,
+    "includeFileNames": true,
+    "includeDiffStats": true,
+    "excludePatterns": [
+      "*.lock",
+      "*.log",
+      "node_modules/**",
+      ".git/**",
+      "dist/**",
+      "build/**",
+      "*.min.js",
+      "*.map"
+    ],
+    "openai": {
+      "apiKey": null,
+      "organization": null,
+      "baseURL": null
+    },
+    "local": {
+      "endpoint": "http://localhost:11434",
+      "model": "llama2"
+    },
+    "templates": {
+      "prompt": "You are an expert software developer creating Azure DevOps work items.\n\nAnalyze this git diff and create a task description with:\n- Clear, actionable title\n- Comprehensive summary of changes\n- Technical implementation details\n- Potential risks or considerations\n\nGit diff:\n{diff}",
+      "markdown": "## {title}\n\n**Summary**\n{summary}\n\n**Technical Details**\n{tech}\n\n**Files Changed**\n{files}",
+      "json": {
+        "title": "{title}",
+        "summary": "{summary}",
+        "technical_details": "{tech}",
+        "files_changed": "{files}",
+        "diff_stats": "{stats}"
+      }
+    }
+  }
