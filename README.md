@@ -12,6 +12,7 @@ Generate task content from your Git diffs — in Markdown or JSON — powered by
 - 🤖 Use **OpenAI**, **Groq** (recommended), or your **own local model**
 - ⚡ Fast and CLI-friendly — built for dev workflows
 - 🆓 **Free tier available** with Groq
+- 📝 **Concise or detailed** task descriptions
 
 ---
 
@@ -39,6 +40,7 @@ create-task [options]
 | `--model`           | AI model to use (optional)                     |
 | `--temperature`     | AI temperature (0-2, default: 0.3)             |
 | `--file`            | Save output to file instead of stdout          |
+| `--detailed`        | Generate comprehensive task descriptions        |
 | `--verbose`         | Enable verbose logging                          |
 
 ### Examples
@@ -50,8 +52,11 @@ create-task
 # Use staged files instead
 create-task --staged
 
-# Output as JSON
-create-task --output json
+# Generate detailed task description
+create-task --detailed
+
+# Output as JSON with detailed description
+create-task --output json --detailed
 
 # Use OpenAI engine
 create-task --engine openai
@@ -116,6 +121,7 @@ Create a `.taskfoundry.json` file in your project or home directory:
   "output": "markdown",
   "model": "llama-3.3-70b-versatile",
   "temperature": 0.3,
+  "detailed": false,
   "includeFileNames": true,
   "excludePatterns": ["*.lock", "node_modules/**"]
 }
@@ -131,7 +137,7 @@ create-task init
 
 ## 🧪 Sample Output
 
-### Markdown (default)
+### Concise (default)
 ```
 **Title**: Refactor auth service
 
@@ -140,7 +146,24 @@ create-task init
 **Technical considerations**: Introduced helper to decode JWT. Ensure compatibility with existing clients.
 ```
 
-### JSON
+### Detailed (--detailed flag)
+```
+**Title**: Implement End-to-End Tests for Employee Management Portal
+
+**Summary**: Create comprehensive end-to-end tests using Playwright to validate the Employee Management functionality in the Manage Business section. The tests should verify all critical user flows for managing employees, including adding, viewing, and removing employees.
+
+Test coverage requirements:
+- Navigate to Employee management section via Manage Business
+- View all employees list with proper table columns validation
+- Test filtering and searching functionality
+- Employee addition workflow with form validation
+- Employee deletion workflow with confirmation
+- Verify success messages and error states
+
+**Technical considerations**: Use Playwright as the testing framework with proper test organization using beforeEach setup for common operations. Implement explicit waiting mechanisms for elements and include proper assertions for success messages. Consider adding data cleanup for test isolation, using unique identifiers for test data, and implementing parallel test execution for efficiency. Add appropriate error handling and confirmation dialog testing.
+```
+
+### JSON Format
 ```json
 {
   "title": "Refactor auth service",

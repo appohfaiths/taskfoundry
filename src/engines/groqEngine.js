@@ -9,19 +9,61 @@ export async function callGroq(diff, engineConfig = {}) {
   }
 
   const model = engineConfig.model || "llama-3.3-70b-versatile"; // or llama-3.1-8b-instant, gemma2-9b-it
+  const isDetailed = engineConfig.detailed || false;
 
-  const prompt = `Analyze this git diff and create a task description for Azure DevOps or similar tools. 
+  const basePrompt = `Analyze this git diff and create a task description for Azure DevOps or similar tools.`;
+  
+  const concisePrompt = `${basePrompt}
 Respond in exactly this format:
 
 TITLE: [Brief summary of the change]
 SUMMARY: [What was changed and why]
 TECHNICAL: [Implementation notes and considerations]
 
+Keep responses concise and focused.`;
+
+  const verbosePrompt = `${basePrompt}
+Create a comprehensive task description with detailed sections.
+
+Respond in exactly this format:
+
+TITLE: [Clear, actionable title]
+SUMMARY: [Comprehensive summary with:
+- What was changed and why
+- Key functionality added/modified
+- Business impact or user benefits
+- Requirements or acceptance criteria
+- Test coverage requirements if applicable]
+TECHNICAL: [Detailed technical considerations including:
+- Implementation approach and architecture decisions
+- Dependencies and integrations affected
+- Performance considerations
+- Security considerations if applicable
+- Testing strategy and recommendations
+- Deployment considerations
+- Potential risks and mitigation strategies
+- Code quality and best practices notes]
+
+Provide detailed, actionable information that would help a developer understand the full scope and context.`;
+
+  const prompt = isDetailed ? verbosePrompt : concisePrompt;
+
+  const requestBody = {
+    model: model,
+    messages: [
+      {
+        role: "user",
+        content: `${prompt}
+
 Git diff:
 \`\`\`
 ${diff}
-\`\`\`
-`;
+\`\`\``,
+      },
+    ],
+    temperature: engineConfig.temperature || 0.3,
+    max_tokens: isDetailed ? (engineConfig.maxTokens || 2000) : (engineConfig.maxTokens || 1000),
+  };
 
   const response = await fetch(
     "https://api.groq.com/openai/v1/chat/completions",
@@ -31,12 +73,7 @@ ${diff}
         Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        model,
-        messages: [{ role: "user", content: prompt }],
-        temperature: engineConfig.temperature || 0.3,
-        max_tokens: engineConfig.maxTokens || 1000,
-      }),
+      body: JSON.stringify(requestBody),
     },
   );
 

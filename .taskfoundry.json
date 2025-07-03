@@ -33,7 +33,10 @@
       "model": "llama2"
     },
     "templates": {
-      "prompt": "You are an expert software developer creating Azure DevOps work items.\n\nAnalyze this git diff and create a task description with:\n- Clear, actionable title\n- Comprehensive summary of changes\n- Technical implementation details\n- Potential risks or considerations\n\nGit diff:\n{diff}",
+      "prompt": {
+        "concise": "You are an expert software developer creating Azure DevOps work items.\n\nAnalyze this git diff and create a concise task description with:\n- Clear, actionable title\n- Brief summary of changes\n- Key technical considerations\n\nGit diff:\n{diff}",
+        "detailed": "You are an expert software developer creating comprehensive Azure DevOps work items.\n\nAnalyze this git diff and create a detailed task description with:\n- Clear, actionable title\n- Comprehensive summary of changes including business impact\n- Detailed technical implementation details\n- Testing requirements and acceptance criteria\n- Potential risks and considerations\n- Deployment and maintenance notes\n\nGit diff:\n{diff}"
+      },
       "markdown": "## {title}\n\n**Summary**\n{summary}\n\n**Technical Details**\n{tech}\n\n**Files Changed**\n{files}",
       "json": {
         "title": "{title}",

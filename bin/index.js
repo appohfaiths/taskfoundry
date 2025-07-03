@@ -33,6 +33,7 @@ program
   .option("--exclude <patterns>", "Comma-separated exclude patterns")
   .option("--template <path>", "Custom prompt template file")
   .option("--verbose", "Enable verbose logging")
+  .option("--detailed", "Show detailed summary and task descriptions")
   .addHelpText(
     "after",
     `

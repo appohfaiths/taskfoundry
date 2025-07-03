@@ -137,6 +137,11 @@ export function getConfigSchema() {
       description: "Output format",
       enum: ["markdown", "json"],
     },
+    detailed: {
+      type: "boolean",
+      default: false,
+      description: "Generate detailed task descriptions"
+    },
     staged: {
       type: "boolean",
       default: false,
