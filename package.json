@@ -20,6 +20,7 @@
     "format:check": "prettier --check src/ bin/ test/",
     "precommit": "npm run lint && npm run format:check && npm run test",
     "prepublishOnly": "npm run precommit",
+    "postpublish": "git status && pwd",
     "local:install": "npm link",
     "local:uninstall": "npm unlink",
     "build": "echo 'No build step required'",
