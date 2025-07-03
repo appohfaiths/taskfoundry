@@ -1,3 +1,4 @@
+// src/createTask.js
 import { execSync } from "child_process";
 import { generateTaskFromDiff as callAIEngine } from "./engines/index.js";
 import { formatMarkdown, formatJSON } from "./formatters.js";
@@ -111,7 +112,7 @@ export async function generateTaskFromDiff(options) {
       throw new Error("No changes found to analyze.");
     }
 
-    // Generate task using AI engine
+    // Generate task using AI engine with system-wide config
     const result = await callAIEngine(diff, options);
 
     // Format and output result

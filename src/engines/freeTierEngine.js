@@ -1,12 +1,8 @@
-import { config } from "dotenv";
+// src/engines/freeTierEngine.js
 import fetch from "node-fetch";
-import { existsSync, readFileSync, writeFileSync } from "fs";
-import { join } from "path";
-import { homedir } from "os";
+import { getUsage, updateUsage, hasAnyApiKey } from "../config/systemConfig.js";
+import { interactiveSetup } from "../utils/keyManager.js";
 
-config();
-
-const USAGE_FILE = join(homedir(), ".taskfoundry-usage.json");
 const FREE_TIER_LIMITS = {
   daily: 50, // Conservative limit for shared key
   monthly: 1000, // Monthly allowance
@@ -19,37 +15,99 @@ export async function callFreeTier(diff, engineConfig = {}) {
   const usage = getUsage();
 
   if (!canUseFreeTier(usage)) {
-    throw new Error(`Free tier limit reached! 
-    
+    // If user has API keys, suggest using them
+    if (hasAnyApiKey()) {
+      throw new Error(`Free tier limit reached! 
+
 📊 Usage: ${usage.today}/${FREE_TIER_LIMITS.daily} requests today
 📅 Monthly: ${usage.month}/${FREE_TIER_LIMITS.monthly} requests this month
 
-🚀 Get unlimited access by setting up your own API key:
+💡 You have API keys configured! Use unlimited access:
+   ct --engine auto --staged
 
-1. Get free Groq API key: https://console.groq.com
-2. Add to .env file: GROQ_API_KEY=your-key-here
-3. Enjoy unlimited requests!
+🔧 Or configure more providers:
+   ct setup`);
+    }
 
-With your own key, you get:
-• 30 requests/minute
-• 1,000 requests/day  
-• 12,000 tokens/minute
-• 100,000 tokens/day`);
+    // Offer to set up API keys
+    console.log(`\n📊 Free tier limit reached!`);
+    console.log(`   Today: ${usage.today}/${FREE_TIER_LIMITS.daily} requests`);
+    console.log(
+      `   Monthly: ${usage.month}/${FREE_TIER_LIMITS.monthly} requests\n`,
+    );
+
+    console.log("🚀 Get unlimited access with your own API key:");
+    console.log("   1. Groq: 1000 free requests/day (Recommended)");
+    console.log("   2. OpenAI: Pay-per-use, very reliable");
+    console.log("   3. Hugging Face: Generous free tier\n");
+
+    // Prompt for setup
+    const { createInterface } = await import("readline");
+    const rl = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    const answer = await new Promise((resolve) => {
+      rl.question("Would you like to set up an API key now? (Y/n): ", resolve);
+    });
+    rl.close();
+
+    if (!answer.toLowerCase().startsWith("n")) {
+      await interactiveSetup();
+      throw new Error("Setup complete! Please run your command again.");
+    } else {
+      throw new Error(
+        'Free tier limit reached. Run "ct setup" when ready to configure API keys.',
+      );
+    }
   }
 
-  // Use community key with Groq API
-  const result = await callGroqWithCommunityKey(diff, engineConfig);
+  try {
+    console.log(
+      `🆓 Using TaskFoundry free tier (${usage.today + 1}/${FREE_TIER_LIMITS.daily} today)...`,
+    );
 
-  updateUsage(usage);
+    // Use community key with Groq API (preserving your existing logic)
+    const result = await callGroqWithCommunityKey(diff, engineConfig);
+    updateUsage();
 
-  // Add free tier notice to results
-  if (!engineConfig.commitMode) {
-    result.tech += `\n\n---\n💡 *Generated using TaskFoundry free tier (${usage.today + 1}/${FREE_TIER_LIMITS.daily} requests today). Get your own API key for unlimited access!*`;
+    // Add free tier notice to results
+    if (!engineConfig.commitMode && result.tech) {
+      result.tech += `\n\n---\n💡 *Generated using TaskFoundry free tier (${usage.today + 1}/${FREE_TIER_LIMITS.daily} requests today). Get your own API key for unlimited access!*`;
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Free tier unavailable:", error.message);
+
+    // Fallback to API key setup
+    console.log("\n🔧 Free tier is temporarily unavailable.");
+    console.log("   Set up your own API key for guaranteed access:\n");
+
+    const { createInterface } = await import("readline");
+    const rl = createInterface({
+      input: process.stdin,
+      output: process.stdout,
+    });
+
+    const answer = await new Promise((resolve) => {
+      rl.question("Set up API key now? (Y/n): ", resolve);
+    });
+    rl.close();
+
+    if (!answer.toLowerCase().startsWith("n")) {
+      await interactiveSetup();
+      throw new Error("Setup complete! Please run your command again.");
+    } else {
+      throw new Error(
+        'Free tier unavailable. Run "ct setup" to configure your own API key.',
+      );
+    }
   }
-
-  return result;
 }
 
+// Preserve your existing Groq implementation
 async function callGroqWithCommunityKey(diff, engineConfig) {
   if (!COMMUNITY_GROQ_KEY) {
     throw new Error(
@@ -66,7 +124,7 @@ async function callGroqWithCommunityKey(diff, engineConfig) {
     return generateCommitMessage(diff, engineConfig, COMMUNITY_GROQ_KEY);
   }
 
-  // Task generation logic (same as groqEngine.js)
+  // Task generation logic (same as your current implementation)
   const basePrompt = `Analyze this git diff and create a task description for Azure DevOps or similar tools.`;
 
   const concisePrompt = `${basePrompt}
@@ -150,7 +208,7 @@ ${diff}
   const data = await response.json();
   const content = data.choices[0].message.content.trim();
 
-  // Enhanced parsing logic (same as groqEngine.js)
+  // Enhanced parsing logic (same as your current implementation)
   const result = { title: "", summary: "", tech: "" };
   const lines = content.split("\n");
   let currentSection = "";
@@ -190,7 +248,7 @@ ${diff}
     result[currentSection] = currentContent.join("\n").trim();
   }
 
-  // Fallback parsing
+  // Fallback parsing (preserve your existing logic)
   if (!result.summary && !result.tech) {
     const titleMatch = content.match(/TITLE:\s*(.+)/);
     const summaryMatch = content.match(/SUMMARY:\s*([\s\S]*?)(?=TECHNICAL:|$)/);
@@ -204,7 +262,7 @@ ${diff}
   return result;
 }
 
-// Commit message generation (same logic as groqEngine.js)
+// Commit message generation (preserve your existing implementation)
 async function generateCommitMessage(diff, engineConfig, apiKey) {
   const { type, scope, breaking } = engineConfig;
 
@@ -278,7 +336,7 @@ ${diff}
   const data = await response.json();
   const content = data.choices[0].message.content.trim();
 
-  // Parse commit message response (same logic as groqEngine.js)
+  // Parse commit message response (preserve your existing logic)
   const result = {
     type: type || "feat",
     scope: scope || "",
@@ -327,46 +385,10 @@ ${diff}
   return result;
 }
 
-function getUsage() {
-  if (!existsSync(USAGE_FILE)) {
-    const today = new Date().toDateString();
-    const month = new Date().toISOString().slice(0, 7); // YYYY-MM
-    return {
-      today: 0,
-      month: 0,
-      lastUsed: today,
-      currentMonth: month,
-    };
-  }
-
-  const usage = JSON.parse(readFileSync(USAGE_FILE, "utf-8"));
-  const today = new Date().toDateString();
-  const currentMonth = new Date().toISOString().slice(0, 7);
-
-  // Reset daily counter if it's a new day
-  if (usage.lastUsed !== today) {
-    usage.today = 0;
-    usage.lastUsed = today;
-  }
-
-  // Reset monthly counter if it's a new month
-  if (usage.currentMonth !== currentMonth) {
-    usage.month = 0;
-    usage.currentMonth = currentMonth;
-  }
-
-  return usage;
-}
-
+// Use system config for usage tracking instead of local file
 function canUseFreeTier(usage) {
   return (
     usage.today < FREE_TIER_LIMITS.daily &&
     usage.month < FREE_TIER_LIMITS.monthly
   );
-}
-
-function updateUsage(usage) {
-  usage.today += 1;
-  usage.month += 1;
-  writeFileSync(USAGE_FILE, JSON.stringify(usage, null, 2));
 }
