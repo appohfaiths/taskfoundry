@@ -25,7 +25,10 @@ program
   )
   .option("--scope <scope>", "Commit scope (optional)")
   .option("--breaking", "Mark as breaking change")
-  .option("--engine <engine>", "Engine to use: auto, openai, groq, freetier, or local")
+  .option(
+    "--engine <engine>",
+    "Engine to use: auto, openai, groq, freetier, or local",
+  )
   .option("--model <model>", "AI model to use")
   .option("--temperature <temp>", "AI temperature (0-2)", parseFloat)
   .option("--file <path>", "Save commit message to file instead of stdout")
@@ -50,9 +53,9 @@ program
     }
   });
 
-  program.addHelpText(
-    "after",
-    `
+program.addHelpText(
+  "after",
+  `
   Examples:
     $ create-commit                         # Generate from staged changes (auto-detects engine)
     $ create-commit --type feat             # Specify commit type
@@ -89,6 +92,6 @@ program
     OPENAI_API_KEY                         # OpenAI API key
     LOCAL_MODEL_ENDPOINT                   # Local model endpoint
     `,
-  );
+);
 
 program.parse(process.argv);

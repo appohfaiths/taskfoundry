@@ -98,27 +98,42 @@ async function generateCommitMessageFromDiff(diff, options) {
   // Load the appropriate engine
   let engineModule;
   let result;
-  
+
   switch (options.engine) {
     case "auto":
       engineModule = await import("./engines/autoEngine.js");
-      result = await engineModule.callAuto(diff, { ...options, commitMode: true });
+      result = await engineModule.callAuto(diff, {
+        ...options,
+        commitMode: true,
+      });
       break;
     case "openai":
       engineModule = await import("./engines/openaiEngine.js");
-      result = await engineModule.callOpenAI(diff, { ...options, commitMode: true });
+      result = await engineModule.callOpenAI(diff, {
+        ...options,
+        commitMode: true,
+      });
       break;
     case "groq":
       engineModule = await import("./engines/groqEngine.js");
-      result = await engineModule.callGroq(diff, { ...options, commitMode: true });
+      result = await engineModule.callGroq(diff, {
+        ...options,
+        commitMode: true,
+      });
       break;
     case "freetier":
       engineModule = await import("./engines/freeTierEngine.js");
-      result = await engineModule.callFreeTier(diff, { ...options, commitMode: true });
+      result = await engineModule.callFreeTier(diff, {
+        ...options,
+        commitMode: true,
+      });
       break;
     case "local":
       engineModule = await import("./engines/localModelEngine.js");
-      result = await engineModule.callLocalModel(diff, { ...options, commitMode: true });
+      result = await engineModule.callLocalModel(diff, {
+        ...options,
+        commitMode: true,
+      });
       break;
     default:
       throw new Error(`Unknown engine: ${options.engine}`);

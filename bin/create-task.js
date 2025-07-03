@@ -21,7 +21,10 @@ program
   .version(packageJson.version)
   .option("--staged", "Use staged changes (git diff --cached)")
   .option("--output <format>", "Output format: markdown or json")
-  .option("--engine <engine>", "Engine to use: auto, groq, openai, freetier, or local")
+  .option(
+    "--engine <engine>",
+    "Engine to use: auto, groq, openai, freetier, or local",
+  )
   .option("--model <model>", "AI model to use")
   .option("--temperature <temp>", "AI temperature (0-2)", parseFloat)
   .option("--max-tokens <tokens>", "Maximum tokens for AI response", parseInt)
@@ -56,9 +59,9 @@ program
     }
   });
 
-  program.addHelpText(
-    "after",
-    `
+program.addHelpText(
+  "after",
+  `
   Examples:
     $ create-task                           # Generate from last commit (auto-detects engine)
     $ create-task --staged                  # Generate from staged changes
@@ -89,7 +92,7 @@ program
     OPENAI_API_KEY                         # OpenAI API key
     LOCAL_MODEL_ENDPOINT                   # Local model endpoint
     `,
-  );
+);
 
 program
   .command("config")
