@@ -21,7 +21,7 @@ program
   .version(packageJson.version)
   .option('--staged', 'Use staged changes (git diff --cached)')
   .option('--output <format>', 'Output format: markdown or json')
-  .option('--engine <engine>', 'Engine to use: openai or local')
+  .option('--engine <engine>', 'Engine to use: openai, groq, or local')
   .option('--model <model>', 'AI model to use')
   .option('--temperature <temp>', 'AI temperature (0-2)', parseFloat)
   .option('--max-tokens <tokens>', 'Maximum tokens for AI response', parseInt)
@@ -48,70 +48,69 @@ Configuration:
   to set default options. CLI arguments override config file settings.
 
 Environment Variables:
+  Set these in a .env file or your shell:
+  GROQ_API_KEY                            # Groq API key
   OPENAI_API_KEY                         # OpenAI API key
   LOCAL_MODEL_ENDPOINT                   # Local model endpoint
   `)
-  .addCommand(
-    program
-      .createCommand('config')
-      .description('Show configuration schema and current settings')
-      .action(() => {
-        console.log('Configuration Schema:');
-        console.log(JSON.stringify(getConfigSchema(), null, 2));
-        console.log('\nCurrent Configuration:');
-        console.log(JSON.stringify(loadConfig(), null, 2));
-      })
-  )
-  .addCommand(
-    program
-      .createCommand('init')
-      .description('Create a default .taskfoundry.json config file')
-      .action(() => {
-        const fs = require('fs');
-        const defaultConfig = {
-          engine: 'openai',
-          output: 'markdown',
-          staged: false,
-          model: 'gpt-4',
-          temperature: 0.3,
-          maxTokens: 1000,
-          includeFileNames: true,
-          includeDiffStats: true,
-          excludePatterns: [
-            '*.lock',
-            '*.log',
-            'node_modules/**',
-            '.git/**',
-            'dist/**',
-            'build/**'
-          ]
-        };
+  .action(async (options) => {
+    try {
+      // Load configuration with CLI options override
+      const config = loadConfig(options);
 
-        fs.writeFileSync('.taskfoundry.json', JSON.stringify(defaultConfig, null, 2));
-        console.log('Created .taskfoundry.json config file');
-      })
-  );
+      // Convert exclude patterns from string to array if needed
+      if (typeof config.exclude === 'string') {
+        config.excludePatterns = config.exclude.split(',').map(p => p.trim());
+      }
+
+      await generateTaskFromDiff(config);
+    } catch (error) {
+      console.error('Error:', error.message);
+
+      if (options.verbose) {
+        console.error(error.stack);
+      }
+
+      process.exit(1);
+    }
+  });
+
+program
+  .command('config')
+  .description('Show configuration schema and current settings')
+  .action(() => {
+    console.log('Configuration Schema:');
+    console.log(JSON.stringify(getConfigSchema(), null, 2));
+    console.log('\nCurrent Configuration:');
+    console.log(JSON.stringify(loadConfig(), null, 2));
+  });
+
+program
+  .command('init')
+  .description('Create a default .taskfoundry.json config file')
+  .action(() => {
+    const fs = require('fs');
+    const defaultConfig = {
+      engine: 'openai',
+      output: 'markdown',
+      staged: false,
+      model: 'gpt-4',
+      temperature: 0.3,
+      maxTokens: 1000,
+      includeFileNames: true,
+      includeDiffStats: true,
+      excludePatterns: [
+        '*.lock',
+        '*.log',
+        'node_modules/**',
+        '.git/**',
+        'dist/**',
+        'build/**'
+      ]
+    };
+
+    fs.writeFileSync('.taskfoundry.json', JSON.stringify(defaultConfig, null, 2));
+    console.log('Created .taskfoundry.json config file');
+  });
 
 program.parse(process.argv);
-
-const options = program.opts();
-
-try {
-  // Load configuration with CLI options override
-  const config = loadConfig(options);
-
-  // Convert exclude patterns from string to array if needed
-  if (typeof config.exclude === 'string') {
-    config.excludePatterns = config.exclude.split(',').map(p => p.trim());
-  }
-
-  await generateTaskFromDiff(config);
-} catch (error) {
-  console.error('Error:', error.message);
-
-  if (options.verbose) {
-    console.error(error.stack);
-  }
-
-  process.exit(1);
-}
