@@ -1,16 +1,12 @@
 import { execSync } from 'child_process';
-import { callOpenAI } from './engines/openaiEngine.js';
-import { callLocalModel } from './engines/localEngine.js';
+import { generateTaskFromDiff as callAIEngine } from './engines/index.js';
 import { formatMarkdown, formatJSON } from './formatters.js';
 
 export async function generateTaskFromDiff(options) {
     if (!['markdown', 'json'].includes(options.output)) {
         throw new Error('Output format must be "markdown" or "json"');
-      }
-      
-      if (!['openai', 'local'].includes(options.engine)) {
-        throw new Error('Engine must be "openai" or "local"');
-      }
+    }
+  
   try {
     let diffCmd = 'git diff HEAD~1';
     if (options.staged) {
@@ -31,8 +27,7 @@ export async function generateTaskFromDiff(options) {
       return;
     }
 
-    const engine = options.engine === 'local' ? callLocalModel : callOpenAI;
-    const result = await engine(diff);
+    const result = await callAIEngine(diff, options);
 
     const formatted =
       options.output === 'json' ? formatJSON(result) : formatMarkdown(result);
