@@ -3,7 +3,7 @@
 import { program } from 'commander';
 import { generateTaskFromDiff } from '../src/createTask.js';
 import { loadConfig, getConfigSchema } from '../src/config.js';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -89,7 +89,6 @@ program
   .command('init')
   .description('Create a default .taskfoundry.json config file')
   .action(() => {
-    const fs = require('fs');
     const defaultConfig = {
       engine: 'openai',
       output: 'markdown',
@@ -109,7 +108,7 @@ program
       ]
     };
 
-    fs.writeFileSync('.taskfoundry.json', JSON.stringify(defaultConfig, null, 2));
+    writeFileSync('.taskfoundry.json', JSON.stringify(defaultConfig, null, 2));
     console.log('Created .taskfoundry.json config file');
   });
 
