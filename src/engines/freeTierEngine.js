@@ -8,7 +8,7 @@ const FREE_TIER_LIMITS = {
 };
 
 // Shared community API key for free tier (you'd need to set this up)
-const COMMUNITY_API_URL = 'https://taskfoundry-freetier-api.vercel.app';
+const COMMUNITY_API_URL = "https://taskfoundry-freetier-api.vercel.app";
 
 export async function callFreeTier(diff, engineConfig = {}) {
   const usage = getUsage();
@@ -63,38 +63,47 @@ export async function callFreeTier(diff, engineConfig = {}) {
   }
 
   try {
-    console.log(`🆓 Using TaskFoundry free tier (${usage.today + 1}/${FREE_TIER_LIMITS.daily} today)...`);
+    console.log(
+      `🆓 Using TaskFoundry free tier (${usage.today + 1}/${FREE_TIER_LIMITS.daily} today)...`,
+    );
 
-    const endpoint = engineConfig.commitMode ? '/api/grok/commit' : '/api/grok/task';
+    const endpoint = engineConfig.commitMode
+      ? "/api/grok/commit"
+      : "/api/grok/task";
     console.log(`🔗 Endpoint: ${COMMUNITY_API_URL}${endpoint}`);
     const response = await fetch(`${COMMUNITY_API_URL}${endpoint}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         diff,
-        engineConfig
-      })
+        engineConfig,
+      }),
     });
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || 'Free tier request failed');
+      throw new Error(error.message || "Free tier request failed");
     }
 
     const result = await response.json();
     updateUsage();
 
     if (engineConfig.commitMode) {
-      const commitMessage = result.data?.commit || result.data?.message || result.commit || result.message || 'chore: update code';
+      const commitMessage =
+        result.data?.commit ||
+        result.data?.message ||
+        result.commit ||
+        result.message ||
+        "chore: update code";
 
       // Return a structured object that matches what your formatCommitMessage expects
       return {
-        type: 'commit',
+        type: "commit",
         message: commitMessage,
         commit: commitMessage,
-        description: commitMessage
+        description: commitMessage,
       };
     } else {
       // For task mode, ensure we return the data with proper structure
@@ -102,11 +111,11 @@ export async function callFreeTier(diff, engineConfig = {}) {
 
       // Ensure all required fields are present
       return {
-        type: taskData?.type || 'task',
-        title: taskData?.title || 'Task Title',
-        summary: taskData?.summary || 'Task summary not available',
-        technical: taskData?.technical || 'Technical details not available',
-        ...taskData // Include any additional fields
+        type: taskData?.type || "task",
+        title: taskData?.title || "Task Title",
+        summary: taskData?.summary || "Task summary not available",
+        technical: taskData?.technical || "Technical details not available",
+        ...taskData, // Include any additional fields
       };
     }
   } catch (error) {

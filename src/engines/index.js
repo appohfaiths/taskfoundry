@@ -27,7 +27,7 @@ export async function generateTaskFromDiff(diff, config) {
       console.log(
         `\n⚠️  ${engine} is temporarily unavailable (${getErrorType(error)}), falling back to auto mode...`,
       );
-      
+
       try {
         // Automatically fallback to auto mode
         return await callAuto(diff, { ...config, engine: "auto" });
@@ -37,7 +37,7 @@ export async function generateTaskFromDiff(diff, config) {
           console.log(
             `\n⚠️  ${engine} is temporarily unavailable (${getErrorType(error)}), falling back to auto mode...`,
           );
-          
+
           try {
             // Automatically fallback to auto mode
             return await callAuto(diff, { ...config, engine: "auto" });
@@ -50,12 +50,12 @@ export async function generateTaskFromDiff(diff, config) {
             throw error; // Throw original error, not auto error
           }
         }
-        
+
         // For non-temporary errors or auto engine failures, just throw
         throw error;
       }
     }
-    
+
     // For non-temporary errors or auto engine failures, just throw
     throw error;
   }
@@ -79,11 +79,12 @@ function isTemporaryError(error) {
 }
 
 function getErrorType(error) {
-  if (/429/i.test(error.message) || /rate limit/i.test(error.message)) return 'rate limited';
-  if (/503/i.test(error.message)) return 'service unavailable';
-  if (/502/i.test(error.message)) return 'server error';
-  if (/timeout/i.test(error.message)) return 'timeout';
-  if (/network/i.test(error.message)) return 'network error';
-  if (/quota/i.test(error.message)) return 'quota exceeded';
-  return 'error';
+  if (/429/i.test(error.message) || /rate limit/i.test(error.message))
+    return "rate limited";
+  if (/503/i.test(error.message)) return "service unavailable";
+  if (/502/i.test(error.message)) return "server error";
+  if (/timeout/i.test(error.message)) return "timeout";
+  if (/network/i.test(error.message)) return "network error";
+  if (/quota/i.test(error.message)) return "quota exceeded";
+  return "error";
 }

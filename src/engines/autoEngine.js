@@ -124,19 +124,19 @@ function mapModelToEngine(engineConfig, targetEngine) {
       groq: "llama-3.3-70b-versatile",
       openai: "gpt-4o-mini",
       huggingface: "meta-llama/Llama-3.1-70B-Instruct",
-      freetier: "llama-3.3-70b-versatile"
+      freetier: "llama-3.3-70b-versatile",
     },
     "llama-3.1-70b-versatile": {
       groq: "llama-3.1-70b-versatile",
       openai: "gpt-4o-mini",
       huggingface: "meta-llama/Llama-3.1-70B-Instruct",
-      freetier: "llama-3.3-70b-versatile"
+      freetier: "llama-3.3-70b-versatile",
     },
     "mixtral-8x7b-32768": {
       groq: "mixtral-8x7b-32768",
       openai: "gpt-4o-mini",
       huggingface: "mistralai/Mixtral-8x7B-Instruct-v0.1",
-      freetier: "llama-3.3-70b-versatile"
+      freetier: "llama-3.3-70b-versatile",
     },
 
     // OpenAI models
@@ -144,25 +144,25 @@ function mapModelToEngine(engineConfig, targetEngine) {
       groq: "llama-3.3-70b-versatile",
       openai: "gpt-4o",
       huggingface: "meta-llama/Llama-3.1-70B-Instruct",
-      freetier: "llama-3.3-70b-versatile"
+      freetier: "llama-3.3-70b-versatile",
     },
     "gpt-4o-mini": {
       groq: "llama-3.3-70b-versatile",
       openai: "gpt-4o-mini",
       huggingface: "meta-llama/Llama-3.1-70B-Instruct",
-      freetier: "llama-3.3-70b-versatile"
+      freetier: "llama-3.3-70b-versatile",
     },
     "gpt-4": {
       groq: "llama-3.3-70b-versatile",
       openai: "gpt-4",
       huggingface: "meta-llama/Llama-3.1-70B-Instruct",
-      freetier: "llama-3.3-70b-versatile"
+      freetier: "llama-3.3-70b-versatile",
     },
     "gpt-3.5-turbo": {
       groq: "llama-3.1-8b-instant",
       openai: "gpt-3.5-turbo",
       huggingface: "meta-llama/Llama-3.1-8B-Instruct",
-      freetier: "llama-3.3-70b-versatile"
+      freetier: "llama-3.3-70b-versatile",
     },
   };
 
@@ -172,7 +172,7 @@ function mapModelToEngine(engineConfig, targetEngine) {
       groq: "llama-3.3-70b-versatile",
       openai: "gpt-4o-mini",
       huggingface: "meta-llama/Llama-3.1-70B-Instruct",
-      freetier: "llama-3.3-70b-versatile"
+      freetier: "llama-3.3-70b-versatile",
     };
 
     return {
@@ -195,7 +195,7 @@ function mapModelToEngine(engineConfig, targetEngine) {
     groq: "llama-3.3-70b-versatile",
     openai: "gpt-4o-mini",
     huggingface: "meta-llama/Llama-3.1-70B-Instruct",
-    freetier: "llama-3.3-70b-versatile"
+    freetier: "llama-3.3-70b-versatile",
   };
 
   if (model && engineDefaults[targetEngine] !== model) {

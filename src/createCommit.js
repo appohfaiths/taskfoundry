@@ -71,13 +71,15 @@ export async function generateCommitMessage(options) {
     } else if (options.copy) {
       // Copy to clipboard - use spawn to avoid shell escaping issues
       try {
-        const { spawn } = await import('child_process');
-        const pbcopy = spawn('pbcopy');
+        const { spawn } = await import("child_process");
+        const pbcopy = spawn("pbcopy");
         pbcopy.stdin.write(commitMessage);
         pbcopy.stdin.end();
         console.log("✅ Commit message copied to clipboard!");
       } catch {
-        console.log("❌ Failed to copy to clipboard. Here's your commit message:");
+        console.log(
+          "❌ Failed to copy to clipboard. Here's your commit message:",
+        );
         console.log("─".repeat(50));
         console.log(commitMessage);
         console.log("─".repeat(50));
@@ -107,51 +109,64 @@ export async function generateCommitMessage(options) {
 function formatCommitMessage(commitData) {
   // Handle null/undefined input
   if (!commitData) {
-    return 'chore: update code';
+    return "chore: update code";
   }
 
   // Handle case where commitData is just a string (simple commit message)
-  if (typeof commitData === 'string') {
-    return commitData.trim() || 'chore: update code';
+  if (typeof commitData === "string") {
+    return commitData.trim() || "chore: update code";
   }
 
   // Handle case where commitData has a commit or message field
   if (commitData && (commitData.commit || commitData.message)) {
     const message = commitData.commit || commitData.message;
-    return typeof message === 'string' ? message.trim() : 'chore: update code';
+    return typeof message === "string" ? message.trim() : "chore: update code";
   }
 
   // Handle structured commit data
-  if (commitData && typeof commitData === 'object') {
-    const { type, scope, description, body, breaking, breakingDescription } = commitData;
+  if (commitData && typeof commitData === "object") {
+    const { type, scope, description, body, breaking, breakingDescription } =
+      commitData;
 
     // If we have a pre-formatted message, use it
     if (commitData.description && !type) {
-      return typeof commitData.description === 'string' 
-        ? commitData.description.trim() 
-        : 'chore: update code';
+      return typeof commitData.description === "string"
+        ? commitData.description.trim()
+        : "chore: update code";
     }
 
     if (!type && !description) {
       // If we don't have structured data, try to extract from any available field
-      const possibleMessage = commitData.description || 
-                             commitData.commit || 
-                             commitData.message || 
-                             'chore: update code';
-      return typeof possibleMessage === 'string' 
-        ? possibleMessage.trim() 
-        : 'chore: update code';
+      const possibleMessage =
+        commitData.description ||
+        commitData.commit ||
+        commitData.message ||
+        "chore: update code";
+      return typeof possibleMessage === "string"
+        ? possibleMessage.trim()
+        : "chore: update code";
     }
 
     // Validate and sanitize type
-    const validTypes = ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'chore', 'ci', 'build'];
-    const commitType = validTypes.includes(type) ? type : 'chore';
+    const validTypes = [
+      "feat",
+      "fix",
+      "docs",
+      "style",
+      "refactor",
+      "perf",
+      "test",
+      "chore",
+      "ci",
+      "build",
+    ];
+    const commitType = validTypes.includes(type) ? type : "chore";
 
     let message = commitType;
 
     // Add scope if provided and valid
-    if (scope && typeof scope === 'string' && scope.trim()) {
-      const cleanScope = scope.trim().replace(/[()]/g, ''); // Remove existing parentheses
+    if (scope && typeof scope === "string" && scope.trim()) {
+      const cleanScope = scope.trim().replace(/[()]/g, ""); // Remove existing parentheses
       message += `(${cleanScope})`;
     }
 
@@ -161,18 +176,24 @@ function formatCommitMessage(commitData) {
     }
 
     // Add description
-    const desc = description && typeof description === 'string' 
-      ? description.trim() 
-      : 'update code';
+    const desc =
+      description && typeof description === "string"
+        ? description.trim()
+        : "update code";
     message += `: ${desc}`;
 
     // Add body if provided
-    if (body && typeof body === 'string' && body.trim()) {
+    if (body && typeof body === "string" && body.trim()) {
       message += `\n\n${body.trim()}`;
     }
 
     // Add breaking change description
-    if (breaking && breakingDescription && typeof breakingDescription === 'string' && breakingDescription.trim()) {
+    if (
+      breaking &&
+      breakingDescription &&
+      typeof breakingDescription === "string" &&
+      breakingDescription.trim()
+    ) {
       message += `\n\nBREAKING CHANGE: ${breakingDescription.trim()}`;
     }
 
@@ -180,7 +201,7 @@ function formatCommitMessage(commitData) {
   }
 
   // Fallback for any other case
-  return 'chore: update code';
+  return "chore: update code";
 }
 
 export function getCommitTypes() {
