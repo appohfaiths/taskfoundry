@@ -8,7 +8,7 @@ const FREE_TIER_LIMITS = {
 };
 
 // Shared community API key for free tier (you'd need to set this up)
-const COMMUNITY_API_URL = process.env.TASKFOUNDRY_API_URL || 'https://taskfoundry-api.vercel.app/api';
+const COMMUNITY_API_URL = 'https://taskfoundry-freetier-api.vercel.app';
 
 export async function callFreeTier(diff, engineConfig = {}) {
   const usage = getUsage();
@@ -65,9 +65,9 @@ export async function callFreeTier(diff, engineConfig = {}) {
   try {
     console.log(`🆓 Using TaskFoundry free tier (${usage.today + 1}/${FREE_TIER_LIMITS.daily} today)...`);
 
-    const endpoint = engineConfig.commitMode ? 'commit' : 'task';
-    console.log(`🔗 Endpoint: ${COMMUNITY_API_URL}/${endpoint}`);
-    const response = await fetch(`${COMMUNITY_API_URL}/${endpoint}`, {
+    const endpoint = engineConfig.commitMode ? '/api/grok/commit' : '/api/grok/task';
+    console.log(`🔗 Endpoint: ${COMMUNITY_API_URL}${endpoint}`);
+    const response = await fetch(`${COMMUNITY_API_URL}${endpoint}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
