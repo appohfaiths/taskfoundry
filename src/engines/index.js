@@ -22,12 +22,41 @@ export async function generateTaskFromDiff(diff, config) {
         return await callAuto(diff, config);
     }
   } catch (error) {
+    // If a specific engine fails with a temporary error, automatically fallback to auto
     if (engine !== "auto" && isTemporaryError(error)) {
       console.log(
-        `\n💡 ${engine} is temporarily unavailable. Try auto mode for automatic failover:`,
+        `\n⚠️  ${engine} is temporarily unavailable (${getErrorType(error)}), falling back to auto mode...`,
       );
-      console.log(`   create-task --engine auto`);
+      
+      try {
+        // Automatically fallback to auto mode
+        return await callAuto(diff, { ...config, engine: "auto" });
+      } catch (error) {
+        // If a specific engine fails with a temporary error, automatically fallback to auto
+        if (engine !== "auto" && isTemporaryError(error)) {
+          console.log(
+            `\n⚠️  ${engine} is temporarily unavailable (${getErrorType(error)}), falling back to auto mode...`,
+          );
+          
+          try {
+            // Automatically fallback to auto mode
+            return await callAuto(diff, { ...config, engine: "auto" });
+          } catch (autoError) {
+            console.log(`\n❌ Auto fallback also failed: ${autoError.message}`);
+            console.log(`\n💡 Suggestions:`);
+            console.log(`   • Wait a few minutes and try again`);
+            console.log(`   • Check your API key quotas/limits`);
+            console.log(`   • Set up additional API keys: create-task setup`);
+            throw error; // Throw original error, not auto error
+          }
+        }
+        
+        // For non-temporary errors or auto engine failures, just throw
+        throw error;
+      }
     }
+    
+    // For non-temporary errors or auto engine failures, just throw
     throw error;
   }
 }
@@ -40,9 +69,21 @@ function isTemporaryError(error) {
     /timeout/i, // Timeout
     /network/i, // Network error
     /temporarily/i, // Temporary errors
+    /rate limit/i, // Rate limit variations
+    /quota/i, // Quota exceeded
   ];
 
   return temporaryPatterns.some(
     (pattern) => pattern.test(error.message) || pattern.test(error.code),
   );
+}
+
+function getErrorType(error) {
+  if (/429/i.test(error.message) || /rate limit/i.test(error.message)) return 'rate limited';
+  if (/503/i.test(error.message)) return 'service unavailable';
+  if (/502/i.test(error.message)) return 'server error';
+  if (/timeout/i.test(error.message)) return 'timeout';
+  if (/network/i.test(error.message)) return 'network error';
+  if (/quota/i.test(error.message)) return 'quota exceeded';
+  return 'error';
 }
