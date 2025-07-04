@@ -143,30 +143,56 @@ async function generateCommitMessageFromDiff(diff, options) {
 }
 
 function formatCommitMessage(commitData) {
-  const { type, scope, description, body, breaking, breakingDescription } =
-    commitData;
-
-  let message = type;
-
-  if (scope) {
-    message += `(${scope})`;
+  // Handle case where commitData is just a string (simple commit message)
+  if (typeof commitData === 'string') {
+    return commitData;
   }
 
-  if (breaking) {
-    message += "!";
+  // Handle case where commitData has a commit or message field
+  if (commitData && (commitData.commit || commitData.message)) {
+    return commitData.commit || commitData.message;
   }
 
-  message += `: ${description}`;
+  // Handle structured commit data
+  if (commitData && typeof commitData === 'object') {
+    const { type, scope, description, body, breaking, breakingDescription } = commitData;
 
-  if (body && body.trim()) {
-    message += `\n\n${body}`;
+    // If we have a pre-formatted message, use it
+    if (commitData.description && !type) {
+      return commitData.description;
+    }
+
+    if (!type && !description) {
+      // If we don't have structured data, try to extract from any available field
+      const possibleMessage = commitData.description || commitData.commit || commitData.message || 'chore: update code';
+      return possibleMessage;
+    }
+
+    let message = type || 'chore';
+
+    if (scope) {
+      message += `(${scope})`;
+    }
+
+    if (breaking) {
+      message += "!";
+    }
+
+    message += `: ${description || 'update code'}`;
+
+    if (body && body.trim()) {
+      message += `\n\n${body}`;
+    }
+
+    if (breaking && breakingDescription && breakingDescription.trim()) {
+      message += `\n\nBREAKING CHANGE: ${breakingDescription}`;
+    }
+
+    return message;
   }
 
-  if (breaking && breakingDescription && breakingDescription.trim()) {
-    message += `\n\nBREAKING CHANGE: ${breakingDescription}`;
-  }
-
-  return message;
+  // Fallback
+  return 'chore: update code';
 }
 
 export function getCommitTypes() {
