@@ -1,6 +1,7 @@
 import { execSync } from "child_process";
 import { writeFileSync } from "fs";
 import { loadConfig } from "./config.js";
+import { generateTaskFromDiff } from "./engines/index.js";
 
 const COMMIT_TYPES = {
   feat: "A new feature",
@@ -15,6 +16,11 @@ const COMMIT_TYPES = {
   ci: "Changes to CI configuration files and scripts",
   build: "Changes that affect the build system or external dependencies",
 };
+
+function escapeShellString(str) {
+  // Replace single quotes with '\'' and wrap in single quotes
+  return `'${str.replace(/'/g, "'\\''")}'`;
+}
 
 export async function generateCommitMessage(options) {
   try {
@@ -44,32 +50,34 @@ export async function generateCommitMessage(options) {
     // Load configuration
     const config = loadConfig(options);
 
-    // Generate commit message using AI
-    const commitData = await generateCommitMessageFromDiff(diff, {
+    // Generate commit message using the main dispatcher with automatic fallback
+    const commitData = await generateTaskFromDiff(diff, {
       type: options.type,
       scope: options.scope,
       breaking: options.breaking || false,
       engine: options.engine || config.engine || "auto", // Default to auto
       model: options.model || config.model,
       temperature: options.temperature || config.temperature,
+      commitMode: true, // This tells engines to generate commit messages
     });
 
     // Format commit message
     const commitMessage = formatCommitMessage(commitData);
 
-    // Output or save the commit message
+    // Handle different output options
     if (options.file) {
       writeFileSync(options.file, commitMessage);
       console.log(`✅ Commit message saved to ${options.file}`);
     } else if (options.copy) {
-      // Copy to clipboard on macOS
+      // Copy to clipboard - use spawn to avoid shell escaping issues
       try {
-        execSync(`echo "${commitMessage.replace(/"/g, '\\"')}" | pbcopy`);
+        const { spawn } = await import('child_process');
+        const pbcopy = spawn('pbcopy');
+        pbcopy.stdin.write(commitMessage);
+        pbcopy.stdin.end();
         console.log("✅ Commit message copied to clipboard!");
       } catch {
-        console.log(
-          "❌ Failed to copy to clipboard. Here's your commit message:",
-        );
+        console.log("❌ Failed to copy to clipboard. Here's your commit message:");
         console.log("─".repeat(50));
         console.log(commitMessage);
         console.log("─".repeat(50));
@@ -82,75 +90,35 @@ export async function generateCommitMessage(options) {
       console.log("─".repeat(50));
     }
 
-    // Show helpful instructions
-    console.log("\n💡 To use this commit message:");
+    // Show helpful instructions with properly escaped command
+    console.log("\n💡 Copy and paste this command:");
     if (options.file) {
-      console.log(`   git commit -F ${options.file}`);
+      console.log(`git commit -F ${options.file}`);
     } else {
-      console.log(`   git commit -m "${commitMessage.replace(/"/g, '\\"')}"`);
+      // Use single quotes to avoid shell interpretation - ready to copy/paste
+      const escapedForDisplay = escapeShellString(commitMessage);
+      console.log(`git commit -m ${escapedForDisplay}`);
     }
   } catch (error) {
     throw new Error(`Failed to generate commit message: ${error.message}`);
   }
 }
 
-async function generateCommitMessageFromDiff(diff, options) {
-  // Load the appropriate engine
-  let engineModule;
-  let result;
-
-  switch (options.engine) {
-    case "auto":
-      engineModule = await import("./engines/autoEngine.js");
-      result = await engineModule.callAuto(diff, {
-        ...options,
-        commitMode: true,
-      });
-      break;
-    case "openai":
-      engineModule = await import("./engines/openaiEngine.js");
-      result = await engineModule.callOpenAI(diff, {
-        ...options,
-        commitMode: true,
-      });
-      break;
-    case "groq":
-      engineModule = await import("./engines/groqEngine.js");
-      result = await engineModule.callGroq(diff, {
-        ...options,
-        commitMode: true,
-      });
-      break;
-    case "freetier":
-      engineModule = await import("./engines/freeTierEngine.js");
-      result = await engineModule.callFreeTier(diff, {
-        ...options,
-        commitMode: true,
-      });
-      break;
-    case "local":
-      engineModule = await import("./engines/localModelEngine.js");
-      result = await engineModule.callLocalModel(diff, {
-        ...options,
-        commitMode: true,
-      });
-      break;
-    default:
-      throw new Error(`Unknown engine: ${options.engine}`);
+function formatCommitMessage(commitData) {
+  // Handle null/undefined input
+  if (!commitData) {
+    return 'chore: update code';
   }
 
-  return result;
-}
-
-function formatCommitMessage(commitData) {
   // Handle case where commitData is just a string (simple commit message)
   if (typeof commitData === 'string') {
-    return commitData;
+    return commitData.trim() || 'chore: update code';
   }
 
   // Handle case where commitData has a commit or message field
   if (commitData && (commitData.commit || commitData.message)) {
-    return commitData.commit || commitData.message;
+    const message = commitData.commit || commitData.message;
+    return typeof message === 'string' ? message.trim() : 'chore: update code';
   }
 
   // Handle structured commit data
@@ -159,39 +127,59 @@ function formatCommitMessage(commitData) {
 
     // If we have a pre-formatted message, use it
     if (commitData.description && !type) {
-      return commitData.description;
+      return typeof commitData.description === 'string' 
+        ? commitData.description.trim() 
+        : 'chore: update code';
     }
 
     if (!type && !description) {
       // If we don't have structured data, try to extract from any available field
-      const possibleMessage = commitData.description || commitData.commit || commitData.message || 'chore: update code';
-      return possibleMessage;
+      const possibleMessage = commitData.description || 
+                             commitData.commit || 
+                             commitData.message || 
+                             'chore: update code';
+      return typeof possibleMessage === 'string' 
+        ? possibleMessage.trim() 
+        : 'chore: update code';
     }
 
-    let message = type || 'chore';
+    // Validate and sanitize type
+    const validTypes = ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'chore', 'ci', 'build'];
+    const commitType = validTypes.includes(type) ? type : 'chore';
 
-    if (scope) {
-      message += `(${scope})`;
+    let message = commitType;
+
+    // Add scope if provided and valid
+    if (scope && typeof scope === 'string' && scope.trim()) {
+      const cleanScope = scope.trim().replace(/[()]/g, ''); // Remove existing parentheses
+      message += `(${cleanScope})`;
     }
 
+    // Add breaking change indicator
     if (breaking) {
       message += "!";
     }
 
-    message += `: ${description || 'update code'}`;
+    // Add description
+    const desc = description && typeof description === 'string' 
+      ? description.trim() 
+      : 'update code';
+    message += `: ${desc}`;
 
-    if (body && body.trim()) {
-      message += `\n\n${body}`;
+    // Add body if provided
+    if (body && typeof body === 'string' && body.trim()) {
+      message += `\n\n${body.trim()}`;
     }
 
-    if (breaking && breakingDescription && breakingDescription.trim()) {
-      message += `\n\nBREAKING CHANGE: ${breakingDescription}`;
+    // Add breaking change description
+    if (breaking && breakingDescription && typeof breakingDescription === 'string' && breakingDescription.trim()) {
+      message += `\n\nBREAKING CHANGE: ${breakingDescription.trim()}`;
     }
 
     return message;
   }
 
-  // Fallback
+  // Fallback for any other case
   return 'chore: update code';
 }
 
