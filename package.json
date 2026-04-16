@@ -1,6 +1,6 @@
 {
   "name": "taskfoundry",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "type": "module",
   "bin": {
     "create-task": "./bin/create-task.js",
