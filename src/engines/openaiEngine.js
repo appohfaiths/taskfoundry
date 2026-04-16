@@ -1,7 +1,4 @@
-import { config } from "dotenv";
 import OpenAI from "openai";
-
-config();
 
 export async function callOpenAI(diff, engineConfig = {}) {
   if (!process.env.OPENAI_API_KEY) {

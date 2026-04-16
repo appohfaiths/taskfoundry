@@ -1,7 +1,4 @@
-import { config } from "dotenv";
 import fetch from "node-fetch";
-
-config();
 
 export async function callGroq(diff, engineConfig = {}) {
   if (!process.env.GROQ_API_KEY) {
