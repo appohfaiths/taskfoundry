@@ -110,7 +110,7 @@ describe("CLI Integration Tests", () => {
     TestHelper.createTestDiff();
 
     const outputFile = "test-output.md";
-    const { code } = await runCli(["--file", outputFile, "--engine", "freetier"]);
+    await runCli(["--file", outputFile, "--engine", "freetier"]);
 
     // If it succeeded or tried to, we check for file
     if (existsSync(outputFile)) {
@@ -131,7 +131,7 @@ describe("Git Integration Tests", () => {
   test("should detect staged changes", async () => {
     TestHelper.createTestDiff();
 
-    const { code, stderr } = await runCli(["--staged", "--engine", "freetier"]);
+    const { stderr } = await runCli(["--staged", "--engine", "freetier"]);
 
     // Success depends on API, but we check it didn't fail on git
     assert(!stderr.includes("No staged changes found"));
@@ -173,7 +173,7 @@ describe("Configuration Integration Tests", () => {
     );
 
     // Use a specific engine that we know will show up in the output/logs
-    const { code, stdout, stderr } = await runCli(["--engine", "openai", "--verbose"]);
+    const { stdout, stderr } = await runCli(["--engine", "openai", "--verbose"]);
 
     // If it fails with "Missing OpenAI API key", it means it correctly picked 'openai' over 'freetier'
     assert(stderr.includes("openai") || stdout.includes("openai"));
