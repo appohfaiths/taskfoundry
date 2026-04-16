@@ -95,7 +95,7 @@ export { hello, goodbye };
       if (existsSync(file)) {
         try {
           unlinkSync(file);
-        } catch (e) {
+        } catch {
           // Ignore errors
         }
       }
