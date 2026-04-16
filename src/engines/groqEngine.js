@@ -74,17 +74,18 @@ ${diff}
       : engineConfig.maxTokens || 1000,
   };
 
-  const response = await fetch(
-    "https://api.groq.com/openai/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify(requestBody),
+  const baseUrl =
+    process.env.GROQ_BASE_URL ||
+    "https://api.groq.com/openai/v1/chat/completions";
+
+  const response = await fetch(baseUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
     },
-  );
+    body: JSON.stringify(requestBody),
+  });
 
   if (!response.ok) {
     throw new Error(
@@ -197,17 +198,18 @@ ${diff}
     max_tokens: engineConfig.maxTokens || 300,
   };
 
-  const response = await fetch(
-    "https://api.groq.com/openai/v1/chat/completions",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-      },
-      body: JSON.stringify(requestBody),
+  const baseUrl =
+    process.env.GROQ_BASE_URL ||
+    "https://api.groq.com/openai/v1/chat/completions";
+
+  const response = await fetch(baseUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
     },
-  );
+    body: JSON.stringify(requestBody),
+  });
 
   if (!response.ok) {
     throw new Error(

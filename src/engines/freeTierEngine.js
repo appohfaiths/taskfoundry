@@ -7,8 +7,9 @@ const FREE_TIER_LIMITS = {
   monthly: 100, // Monthly allowance
 };
 
-// Shared community API key for free tier (you'd need to set this up)
-const COMMUNITY_API_URL = "https://taskfoundry-freetier-api.vercel.app";
+// Shared community API key for free tier (can be overridden via environment variable)
+const COMMUNITY_API_URL =
+  process.env.TASKFOUNDRY_API_URL || "https://taskfoundry-freetier-api.vercel.app";
 
 export async function callFreeTier(diff, engineConfig = {}) {
   const usage = getUsage();
@@ -70,8 +71,18 @@ export async function callFreeTier(diff, engineConfig = {}) {
     const endpoint = engineConfig.commitMode
       ? "/api/grok/commit"
       : "/api/grok/task";
-    console.log(`🔗 Endpoint: ${COMMUNITY_API_URL}${endpoint}`);
-    const response = await fetch(`${COMMUNITY_API_URL}${endpoint}`, {
+    
+    // Construct the full URL, being smart about potential double-paths if user provided a full path in TASKFOUNDRY_API_URL
+    let fullUrl;
+    if (process.env.TASKFOUNDRY_API_URL && process.env.TASKFOUNDRY_API_URL.includes('/api/grok')) {
+      const base = process.env.TASKFOUNDRY_API_URL.replace(/\/$/, '');
+      fullUrl = `${base}/${engineConfig.commitMode ? 'commit' : 'task'}`;
+    } else {
+      fullUrl = `${COMMUNITY_API_URL}${endpoint}`;
+    }
+
+    console.log(`🔗 Endpoint: ${fullUrl}`);
+    const response = await fetch(fullUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
