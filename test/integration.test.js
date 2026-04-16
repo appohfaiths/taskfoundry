@@ -2,13 +2,18 @@
 import { test, describe, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
 import { spawn } from "child_process";
-import { readFileSync, existsSync } from "fs";
+import { readFileSync, existsSync, mkdtempSync } from "fs";
+import { join } from "path";
+import { tmpdir } from "os";
 import { TestHelper } from "./setup.js";
 
-async function runCli(args = []) {
+const CLI_PATH = join(process.cwd(), "bin/create-task.js");
+
+async function runCli(args = [], options = {}) {
   return new Promise((resolve, reject) => {
-    const child = spawn("node", ["bin/create-task.js", ...args], {
+    const child = spawn("node", [CLI_PATH, ...args], {
       stdio: "pipe",
+      cwd: options.cwd || process.cwd(),
     });
 
     let stdout = "";
@@ -52,7 +57,9 @@ describe("CLI Integration Tests", () => {
       return;
     }
 
-    const { code, stdout } = await runCli(["--help"]);
+    const { code, stdout } = await runCli(["--help"], {
+      cwd: TestHelper.tempDir,
+    });
 
     assert.strictEqual(code, 0);
     assert(stdout.includes("Generate task content from Git diff using AI"));
@@ -60,7 +67,9 @@ describe("CLI Integration Tests", () => {
   });
 
   test("should show version", async () => {
-    const { code, stdout } = await runCli(["--version"]);
+    const { code, stdout } = await runCli(["--version"], {
+      cwd: TestHelper.tempDir,
+    });
 
     assert.strictEqual(code, 0);
     // Allow for potential extra output like dotenv injection messages
@@ -68,19 +77,23 @@ describe("CLI Integration Tests", () => {
   });
 
   test("should create config file with init command", async () => {
-    const { code, stdout } = await runCli(["init"]);
+    const { code, stdout } = await runCli(["init"], { cwd: TestHelper.tempDir });
 
     assert.strictEqual(code, 0);
     assert(stdout.includes("Created .taskfoundry.json"));
-    assert(existsSync(".taskfoundry.json"));
+    assert(existsSync(join(TestHelper.tempDir, ".taskfoundry.json")));
 
-    const config = JSON.parse(readFileSync(".taskfoundry.json", "utf-8"));
+    const config = JSON.parse(
+      readFileSync(join(TestHelper.tempDir, ".taskfoundry.json"), "utf-8"),
+    );
     assert.strictEqual(config.engine, "auto");
     assert.strictEqual(config.output, "markdown");
   });
 
   test("should show config with config command", async () => {
-    const { code, stdout } = await runCli(["config"]);
+    const { code, stdout } = await runCli(["config"], {
+      cwd: TestHelper.tempDir,
+    });
 
     assert.strictEqual(code, 0);
     assert(stdout.includes("Configured API Keys:"));
@@ -89,17 +102,20 @@ describe("CLI Integration Tests", () => {
   });
 
   test("should handle missing git repository", async () => {
-    // Remove git repo
+    // Create a fresh temp dir without git init
     TestHelper.cleanup();
+    TestHelper.tempDir = mkdtempSync(
+      join(tmpdir(), "taskfoundry-test-no-git-"),
+    );
 
-    const { code, stderr } = await runCli([]);
+    const { code, stderr } = await runCli([], { cwd: TestHelper.tempDir });
 
     assert.notStrictEqual(code, 0);
     assert(stderr.includes("Not a git repository"));
   });
 
   test("should handle no changes found", async () => {
-    const { code, stderr } = await runCli([]);
+    const { code, stderr } = await runCli([], { cwd: TestHelper.tempDir });
 
     // It should fail because no changes to analyze
     assert.notStrictEqual(code, 0);
@@ -110,10 +126,12 @@ describe("CLI Integration Tests", () => {
     TestHelper.createTestDiff();
 
     const outputFile = "test-output.md";
-    await runCli(["--file", outputFile, "--engine", "freetier"]);
+    await runCli(["--file", outputFile, "--engine", "freetier"], {
+      cwd: TestHelper.tempDir,
+    });
 
     // If it succeeded or tried to, we check for file
-    if (existsSync(outputFile)) {
+    if (existsSync(join(TestHelper.tempDir, outputFile))) {
       assert(true);
     }
   });
@@ -131,7 +149,9 @@ describe("Git Integration Tests", () => {
   test("should detect staged changes", async () => {
     TestHelper.createTestDiff();
 
-    const { stderr } = await runCli(["--staged", "--engine", "freetier"]);
+    const { stderr } = await runCli(["--staged", "--engine", "freetier"], {
+      cwd: TestHelper.tempDir,
+    });
 
     // Success depends on API, but we check it didn't fail on git
     assert(!stderr.includes("No staged changes found"));
@@ -156,7 +176,9 @@ describe("Configuration Integration Tests", () => {
       }),
     );
 
-    const { code, stdout } = await runCli(["config", "--legacy"]);
+    const { code, stdout } = await runCli(["config", "--legacy"], {
+      cwd: TestHelper.tempDir,
+    });
 
     assert.strictEqual(code, 0);
     assert(stdout.includes('"engine": "freetier"'));
@@ -173,11 +195,10 @@ describe("Configuration Integration Tests", () => {
     );
 
     // Use a specific engine that we know will show up in the output/logs
-    const { stdout, stderr } = await runCli([
-      "--engine",
-      "openai",
-      "--verbose",
-    ]);
+    const { stdout, stderr } = await runCli(
+      ["--engine", "openai", "--verbose"],
+      { cwd: TestHelper.tempDir },
+    );
 
     // If it fails with "Missing OpenAI API key", it means it correctly picked 'openai' over 'freetier'
     assert(stderr.includes("openai") || stdout.includes("openai"));
@@ -195,7 +216,9 @@ describe("Error Handling Integration Tests", () => {
 
   test("should handle missing OpenAI API key gracefully", async () => {
     TestHelper.createTestDiff();
-    const { code, stderr } = await runCli(["--engine", "openai"]);
+    const { code, stderr } = await runCli(["--engine", "openai"], {
+      cwd: TestHelper.tempDir,
+    });
 
     assert.notStrictEqual(code, 0);
     assert(
@@ -205,7 +228,9 @@ describe("Error Handling Integration Tests", () => {
 
   test("should handle invalid config file gracefully", async () => {
     TestHelper.createTempFile(".taskfoundry.json", "{ invalid json }");
-    const { code, stdout } = await runCli(["config", "--legacy"]);
+    const { code, stdout } = await runCli(["config", "--legacy"], {
+      cwd: TestHelper.tempDir,
+    });
 
     assert.strictEqual(code, 0);
     assert(stdout.includes('"engine": "auto"'));
