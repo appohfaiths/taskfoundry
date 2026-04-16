@@ -77,7 +77,9 @@ describe("CLI Integration Tests", () => {
   });
 
   test("should create config file with init command", async () => {
-    const { code, stdout } = await runCli(["init"], { cwd: TestHelper.tempDir });
+    const { code, stdout } = await runCli(["init"], {
+      cwd: TestHelper.tempDir,
+    });
 
     assert.strictEqual(code, 0);
     assert(stdout.includes("Created .taskfoundry.json"));
